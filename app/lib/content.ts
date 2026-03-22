@@ -4,10 +4,10 @@ export const siteConfig = {
   description:
     'I build clean interfaces, full-stack products, and practical AI-powered tools from Vushtrri, Kosovo.',
   location: 'Vushtrri, Kosovo',
-  siteUrl: 'https://laurentmaxhuni.netlify.app',
+  siteUrl: 'https://laurentmaxhuni.vercel.app',
   githubUrl: 'https://github.com/LaurentMaxhuni',
   linkedinUrl: 'https://www.linkedin.com/in/laurent-maxhuni-56a394304/',
-  portfolioUrl: 'https://laurentmaxhuni.netlify.app',
+  portfolioUrl: 'https://laurentmaxhuni.vercel.app',
   blogDescription:
     'MDX posts on web development, AI tooling, project breakdowns, SEO-friendly case studies, and backlink-driven writing.',
 }
@@ -131,3 +131,4 @@ export const contactLinks = [
   { label: 'linkedin', href: siteConfig.linkedinUrl },
   { label: 'current portfolio', href: siteConfig.portfolioUrl },
 ]
+
