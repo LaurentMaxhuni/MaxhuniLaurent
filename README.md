@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Laurent Maxhuni
 
-## Getting Started
+Portfolio site and Payload-powered signal archive, built with Next.js, Payload CMS, Neon Postgres, and Vercel Blob.
 
-First, run the development server:
+## Local setup
+
+Install dependencies with pnpm:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `.env` file with the following values:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+PAYLOAD_SECRET=replace-with-a-long-random-secret
+DATABASE_URI=postgresql://USER:PASSWORD@YOUR-ENDPOINT-pooler.REGION.aws.neon.tech/neondb?sslmode=require
+BLOB_READ_WRITE_TOKEN=vercel-blob-read-write-token
+NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+GOOGLE_SITE_VERIFICATION=your-google-search-console-token
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use Neon’s pooled connection string for `DATABASE_URI` in production. Its host includes `-pooler`, which is required for serverless connections.
 
-## Learn More
+Run the development server:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Payload’s development database push is enabled outside production. Use a disposable local database or Neon branch while iterating.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Blog workflow
 
-## Deploy on Vercel
+Posts live in Payload at `/admin`. Authors can save incomplete Markdown drafts, then publish them when ready. Only published posts are available at `/blog` and `/blog/[slug]`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Markdown supports GitHub-flavored tables, task lists, and fenced code blocks. Raw HTML is intentionally not rendered. Optional cover images come from the `media` collection, where alt text is required.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Database migrations
+
+The committed Posts migration is in `src/migrations`. Before each production build/deployment, configure `DATABASE_URI` with the target Neon pooled connection string and run:
+
+```bash
+pnpm payload migrate:status
+pnpm payload migrate
+pnpm build
+```
+
+When the schema changes, generate and commit a new migration and the refreshed Payload types:
+
+```bash
+pnpm payload migrate:create descriptive-change --forceAcceptWarning
+pnpm payload generate:types
+```
+
+## Google Search Console
+
+To verify the deployed domain with Google Search Console, add the token Google provides for the HTML meta-tag verification method as `GOOGLE_SITE_VERIFICATION` in the Vercel project environment variables, then redeploy. Use the token value only, not the full `<meta>` tag. The application emits the verification tag only when this variable is configured. After verification, submit `https://laurentmaxhuni.vercel.app/sitemap.xml` in Search Console.
+
+The homepage uses Google Search's official Preferred Sources publisher button with no supplemental marketing copy or fallback control. The feature applies to the site's domain rather than an individual page.

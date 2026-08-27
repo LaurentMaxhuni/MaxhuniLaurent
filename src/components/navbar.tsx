@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const links = [
+  { label: "Blog", href: "/blog" },
   { label: "Projects", href: "#projects" },
   { label: "Practice", href: "#practice" },
   { label: "About", href: "#about" },
@@ -12,6 +14,9 @@ const links = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const getHref = (href: string) => (href.startsWith("#") && pathname !== "/" ? `/${href}` : href);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -24,7 +29,7 @@ export default function Navbar() {
   return (
     <header className="site-header">
       <nav className="nav" aria-label="Primary navigation">
-        <a className="wordmark" href="#top" onClick={() => setOpen(false)}>
+        <a className="wordmark" href={pathname === "/" ? "#top" : "/#top"} onClick={() => setOpen(false)}>
           <span aria-hidden="true">LM</span>
           <span>Laurent Maxhuni</span>
         </a>
@@ -40,7 +45,12 @@ export default function Navbar() {
         </button>
         <div id="primary-nav-links" className={`nav__links ${open ? "nav__links--open" : ""}`}>
           {links.map((link) => (
-            <a key={link.href} href={link.href} onClick={() => setOpen(false)}>
+            <a
+              key={link.href}
+              href={getHref(link.href)}
+              aria-current={link.href === "/blog" && pathname.startsWith("/blog") ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
               {link.label}
             </a>
           ))}

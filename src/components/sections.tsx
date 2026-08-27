@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Code2, Layers3, MessagesSquare, Orbit, Search, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Code2, Layers3, MessagesSquare, Orbit, Search } from "lucide-react";
+import OrbitingSkills from "@/components/orbiting-skills";
 import TiltedCard from "@/components/TiltedCard";
 import Reveal from "@/components/reveal";
 import { Link001 } from "@/components/ui/skiper-ui/skiper40";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { awards, capabilities, credibilityNotes, projects, site, type Project } from "@/content/portfolio";
+import GlobeStudy from "@/components/ui/globe-study";
+import { awards, credibilityNotes, projects, site, type Project } from "@/content/portfolio";
 
 function ProjectPreview({ project }: { project: Project }) {
   const asset = project.screenshots[0] ?? project.artwork;
@@ -29,7 +31,7 @@ function ProjectPreview({ project }: { project: Project }) {
         displayOverlayContent
         overlayContent={
           <div className="project-preview__overlay" aria-hidden="true">
-            <span>selected signal</span>
+            <span>selected work</span>
             <span>{project.kind === "product" ? "live product" : "repository"}</span>
           </div>
         }
@@ -39,8 +41,14 @@ function ProjectPreview({ project }: { project: Project }) {
 }
 
 export function ProjectsSection() {
-  const featuredProjects = useMemo(() => projects.filter((project) => project.kind === "product"), []);
-  const repositoryList = useMemo(() => projects.filter((project) => project.kind === "repository"), []);
+  const featuredProjects = useMemo(
+    () => projects.filter((project) => project.kind === "product" || project.id === "ideator-dev"),
+    [],
+  );
+  const repositoryList = useMemo(
+    () => projects.filter((project) => project.kind === "repository" && project.id !== "ideator-dev"),
+    [],
+  );
   const [query, setQuery] = useState("");
 
   const visibleRepositories = useMemo(() => {
@@ -54,11 +62,11 @@ export function ProjectsSection() {
       <div className="shell">
         <Reveal className="section-intro section-intro--split">
           <div>
-            <p className="section-kicker"><Layers3 aria-hidden="true" size={16} /> Project orbit</p>
-            <h2 id="projects-title">Every project, one launchpad.</h2>
+            <p className="section-kicker"><Layers3 aria-hidden="true" size={16} /> Projects</p>
+            <h2 id="projects-title">Work built around real problems.</h2>
           </div>
           <p>
-            Featured builds up top, the full public archive below — searchable and one click from the source.
+            Featured work first, then the full public archive. Every project links to its source or live product.
           </p>
         </Reveal>
 
@@ -81,6 +89,9 @@ export function ProjectsSection() {
                     {project.tags.map((tag) => <li key={tag}>{tag}</li>)}
                   </ul>
                   <div className="featured-card__links">
+                    <Link className="round-link" href={`/projects/${project.id}`}>
+                      About project <ArrowUpRight aria-hidden="true" size={17} />
+                    </Link>
                     {project.links.map((link) => (
                       <a key={link.href} className="round-link" href={link.href} target="_blank" rel="noreferrer">
                         {link.label} <ArrowUpRight aria-hidden="true" size={17} />
@@ -96,15 +107,15 @@ export function ProjectsSection() {
         <Reveal className="repo-archive">
           <div className="repo-archive__head">
             <div>
-              <p className="section-kicker"><Code2 aria-hidden="true" size={16} /> Source archive</p>
-              <h3>Every public repository, one grid.</h3>
+              <p className="section-kicker"><Code2 aria-hidden="true" size={16} /> Public repositories</p>
+              <h3>Repositories with the context to inspect them.</h3>
             </div>
             <label className="repo-search">
               <Search aria-hidden="true" size={16} />
               <span className="visually-hidden">Search repositories</span>
               <input
                 type="search"
-                placeholder="Search repositories…"
+                placeholder="Search repositories..."
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -113,22 +124,20 @@ export function ProjectsSection() {
           <ul className="repo-grid">
             {visibleRepositories.map((repo) => (
               <li key={repo.id}>
-                <a
+                <Link
                   className="repo-card"
-                  href={repo.links[0]?.href ?? "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`${repo.title} on GitHub`}
+                  href={`/projects/${repo.id}`}
+                  aria-label={`Open ${repo.title} project brief`}
                 >
                   <span className="repo-card__index">{String(projects.indexOf(repo) + 1).padStart(2, "0")}</span>
                   <span className="repo-card__name">{repo.title}</span>
                   <ArrowUpRight className="repo-card__arrow" size={17} aria-hidden="true" />
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
           {visibleRepositories.length === 0 && (
-            <p className="repo-empty" role="status">No repositories match “{query.trim()}”.</p>
+            <p className="repo-empty" role="status">No repositories match &ldquo;{query.trim()}&rdquo;.</p>
           )}
         </Reveal>
       </div>
@@ -141,25 +150,18 @@ export function PracticeSection() {
     <section id="practice" className="practice-section section" aria-labelledby="practice-title">
       <div className="shell">
         <Reveal className="section-intro">
-          <p className="section-kicker"><Orbit aria-hidden="true" size={16} /> Working range</p>
-          <h2 id="practice-title">The stack is broad. The point of view stays precise.</h2>
+          <p className="section-kicker"><Orbit aria-hidden="true" size={16} /> Technical range</p>
+          <h2 id="practice-title">A broad stack with a consistent approach.</h2>
         </Reveal>
-        <div className="practice-grid">
-          {capabilities.map((capability) => (
-            <Reveal key={capability.label} className="capability-card">
-              <p>{capability.label}</p>
-              <ul>
-                {capability.items.map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal className="practice-orbit">
+          <OrbitingSkills />
+        </Reveal>
         <Reveal className="credibility-bubble">
           <div className="credibility-bubble__intro">
-            <Sparkles aria-hidden="true" size={20} />
+            <Orbit aria-hidden="true" size={20} />
             <div>
-              <p className="section-kicker">Signal strength</p>
-              <h3>Proof, not posturing.</h3>
+              <p className="section-kicker">Track record</p>
+              <h3>Work, not claims.</h3>
             </div>
           </div>
           <ul className="credibility-list">
@@ -177,11 +179,11 @@ export function AboutSection() {
       <div className="shell about-layout">
         <Reveal className="about-card">
           <p className="section-kicker">About Laurent</p>
-          <h2 id="about-title">A developer building the interesting version.</h2>
+          <h2 id="about-title">A developer who builds and publishes.</h2>
           <p>
-            Laurent Maxhuni is a developer and product builder from Vushtrri, Kosovo. The work moves between sharp frontend execution, useful AI tooling, browser extensions, and deliberate experiments.
+            Laurent Maxhuni is a developer and product builder from Vushtrri, Kosovo. His work spans frontend development, AI tools, browser extensions, and experiments.
           </p>
-          <a className="round-link round-link--light" href="#contact">Start a conversation <ArrowUpRight aria-hidden="true" size={17} /></a>
+          <a className="round-link round-link--light" href="#contact">Get in touch <ArrowUpRight aria-hidden="true" size={17} /></a>
         </Reveal>
         <Reveal className="awards-card">
           <p className="section-kicker">Competition record</p>
@@ -209,10 +211,12 @@ export function ContactSection() {
     <section id="contact" className="contact-section section" aria-labelledby="contact-title">
       <div className="shell">
         <Reveal className="contact-orbit">
-          <div className="contact-orbit__glow" aria-hidden="true" />
-          <p className="section-kicker">Open channel</p>
-          <h2 id="contact-title">Good work starts with a good signal.</h2>
-          <p>Have a product, an idea, or a complicated interface worth making better?</p>
+          <div className="contact-orbit__globe" aria-hidden="true">
+            <GlobeStudy opacity={0.48} brightness={0.9} />
+          </div>
+          <p className="section-kicker">Contact</p>
+          <h2 id="contact-title">Let&apos;s talk about the work.</h2>
+          <p>Working on a product, an idea, or an interface that needs attention?</p>
           <a className="blue-button blue-button--large" href={primaryHref} target={site.contactEmail ? undefined : "_blank"} rel={site.contactEmail ? undefined : "noreferrer"}>
             {primaryLabel} <ArrowUpRight aria-hidden="true" size={20} />
           </a>

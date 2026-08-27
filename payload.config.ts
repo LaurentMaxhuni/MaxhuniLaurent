@@ -7,6 +7,7 @@ import { buildConfig } from "payload";
 
 import { Admins } from "./src/collections/Admins.ts";
 import { Media } from "./src/collections/Media.ts";
+import { Posts } from "./src/collections/Posts.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -18,11 +19,13 @@ export default buildConfig({
     },
     user: Admins.slug,
   },
-  collections: [Admins, Media],
+  collections: [Admins, Media, Posts],
   db: postgresAdapter({
+    migrationDir: path.resolve(dirname, "./src/migrations"),
     pool: {
       connectionString: process.env.DATABASE_URI ?? "",
     },
+    push: process.env.NODE_ENV !== "production",
   }),
   plugins: [
     vercelBlobStorage({

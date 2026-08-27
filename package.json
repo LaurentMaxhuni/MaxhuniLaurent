@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:agent-readiness": "node --test tests/agent-readiness.test.mjs",
     "payload": "payload"
   },
   "dependencies": {
@@ -25,6 +26,8 @@
     "payload": "^3.88.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "shadcn": "^4.19.0",
     "sharp": "^0.35.3",
     "tailwind-merge": "^3.6.0",

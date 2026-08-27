@@ -1,6 +1,64 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
 import HeroSection from "@/components/hero-section";
+import GooglePreferredSource from "@/components/google-preferred-source";
 import Navbar from "@/components/navbar";
 import { AboutSection, ContactSection, PracticeSection, ProjectsSection } from "@/components/sections";
+import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_SAME_AS } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Laurent Maxhuni | Developer and product builder",
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    title: "Laurent Maxhuni | Developer and product builder",
+    description: SITE_DESCRIPTION,
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${absoluteUrl("/")}#person`,
+      name: SITE_NAME,
+      url: absoluteUrl("/"),
+      description: "Developer and product builder working across frontend development, AI tools, and browser extensions.",
+      jobTitle: "Developer and product builder",
+      homeLocation: { "@type": "Place", name: "Vushtrri, Kosovo" },
+      sameAs: SITE_SAME_AS,
+    },
+    {
+      "@type": "Organization",
+      "@id": `${absoluteUrl("/")}#organization`,
+      name: SITE_NAME,
+      url: absoluteUrl("/"),
+      description: "The public professional portfolio and developer resources for Laurent Maxhuni.",
+      founder: { "@id": `${absoluteUrl("/")}#person` },
+      address: { "@type": "PostalAddress", addressLocality: "Vushtrri", addressCountry: "XK" },
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "professional inquiries",
+        url: absoluteUrl("/contact"),
+        availableLanguage: "en",
+      },
+      sameAs: SITE_SAME_AS,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${absoluteUrl("/")}#website`,
+      name: SITE_NAME,
+      url: absoluteUrl("/"),
+      description: SITE_DESCRIPTION,
+      inLanguage: "en",
+      publisher: { "@id": `${absoluteUrl("/")}#organization` },
+    },
+  ],
+};
 
 export default function Home() {
   return (
@@ -13,15 +71,17 @@ export default function Home() {
         <PracticeSection />
         <AboutSection />
         <ContactSection />
+        <GooglePreferredSource />
       </main>
       <footer className="site-footer">
         <div className="shell">
+          <nav aria-label="Footer navigation">
+            <Link href="/about">About</Link> · <Link href="/contact">Contact</Link> · <Link href="/privacy">Privacy</Link> · <Link href="/developers">Developer resources</Link>
+          </nav>
           <p>© 2026 Laurent Maxhuni</p>
-          <p>
-            Built with <a href="https://reactbits.dev" target="_blank" rel="noreferrer">React Bits</a>, <a href="https://ui.shadcn.com" target="_blank" rel="noreferrer">shadcn/ui</a>, and <a href="https://skiper-ui.com" target="_blank" rel="noreferrer">Skiper UI</a>.
-          </p>
         </div>
       </footer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
     </>
   );
 }
