@@ -3,6 +3,9 @@ import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
+const googleSiteVerification =
+  process.env.GOOGLE_SITE_VERIFICATION ?? "fguq4YwUJzXnH0iyxRkBaNqnfz2hDFbX4E64PWg9KRc";
+
 const display = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: "--font-display",
@@ -37,9 +40,7 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  verification: process.env.GOOGLE_SITE_VERIFICATION
-    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
-    : undefined,
+  verification: { google: googleSiteVerification },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icon.png",
