@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_URL } from "@/lib/site";
+import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const googleSiteVerification =
@@ -53,13 +53,13 @@ export const metadata: Metadata = {
     title: "Laurent Maxhuni | Developer and product builder",
     description: SITE_DESCRIPTION,
     url: "/",
-    images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: "Laurent Maxhuni developer and product builder" }],
+    images: [{ url: absoluteUrl(SITE_OG_IMAGE), width: 1200, height: 630, alt: "Laurent Maxhuni developer and product builder" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Laurent Maxhuni | Developer and product builder",
     description: SITE_DESCRIPTION,
-    images: [SITE_OG_IMAGE],
+    images: [absoluteUrl(SITE_OG_IMAGE)],
   },
 };
 

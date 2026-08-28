@@ -87,7 +87,12 @@ test("agent discovery files and developer resources are public and well formed",
   const llms = await request("/llms.txt");
   assert.equal(llms.status, 200);
   assert.match(llms.headers.get("content-type") ?? "", /^text\/plain/);
-  assert.match(await llms.text(), /## When to use this portfolio/);
+  const llmsBody = await llms.text();
+  assert.match(llmsBody, /# Laurent Maxhuni/);
+  assert.match(llmsBody, /\/developers/);
+  assert.match(llmsBody, /\/api\/v1\/posts/);
+  assert.match(llmsBody, /\/openapi\.json/);
+  assert.match(llmsBody, /\.well-known\/mcp/);
 
   const sitemap = await request("/sitemap.xml");
   assert.equal(sitemap.status, 200);
@@ -95,23 +100,119 @@ test("agent discovery files and developer resources are public and well formed",
   const sitemapBody = await sitemap.text();
   assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/developers/);
   assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/projects\/promptify/);
+  assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/llms\.txt/);
+  assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/openapi\.json/);
+
+  const sitemapUrls = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
+  for (const pathname of sitemapUrls) {
+    const response = await request(pathname);
+    assert.equal(response.status, 200, `sitemap URL ${pathname}`);
+  }
 
   const robots = await request("/robots.txt");
   assert.equal(robots.status, 200);
   assert.match(robots.headers.get("content-type") ?? "", /^text\/plain/);
-  assert.match(await robots.text(), /Sitemap: https:\/\/laurentmaxhuni\.vercel\.app\/sitemap\.xml/);
+  const robotsBody = await robots.text();
+  assert.match(robotsBody, /Sitemap: https:\/\/laurentmaxhuni\.vercel\.app\/sitemap\.xml/);
+  assert.doesNotMatch(robotsBody, /Disallow: \/api\//);
 
   const openapi = await request("/openapi.json");
   assert.equal(openapi.status, 200);
   assert.match(openapi.headers.get("content-type") ?? "", /application\/vnd\.oai\.openapi\+json/);
   const document = await openapi.json();
   assert.equal(document.openapi, "3.1.1");
+  assert.ok(document.paths["/api/v1/posts"]);
   assert.ok(document.paths["/api/posts"]);
+  assert.ok(document.components.schemas.ProblemDetails);
+  assert.ok(document.components.schemas.PostsPage);
+  assert.equal(document.paths["/api/v1/posts"].get.operationId, "listPublishedPosts");
+  assert.equal(document.paths["/api/v1/posts"].get.responses["200"].content["application/json"].schema.$ref, "#/components/schemas/PostsPage");
+  for (const status of ["400", "404", "429", "500"]) {
+    assert.equal(document.paths["/api/v1/posts"].get.responses[status].content["application/problem+json"].schema.$ref, "#/components/schemas/ProblemDetails");
+  }
+  assert.equal(document.paths["/api/v1/posts"].get.responses["429"].headers["Retry-After"].schema.type, "integer");
+  assert.match(JSON.stringify(document), /Deprecation|Sunset/);
+  assert.equal(document["x-api-versioning"].canonicalPath, "/api/v1/posts");
 
   for (const path of ["/developers", "/developers/api", "/developers/auth", "/developers/mcp"]) {
     const response = await request(path);
     assert.equal(response.status, 200, path);
   }
+});
+
+test("homepage has meaningful server-rendered content without JavaScript", async () => {
+  const [response, sections] = await Promise.all([
+    request("/", { headers: { Accept: "text/html" } }),
+    readFile(new URL("../src/components/sections.tsx", import.meta.url), "utf8"),
+  ]);
+  const html = await response.text();
+  const contentOnly = html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const headings = [...html.matchAll(/<h([1-6])\b[^>]*>/gi)].map((match) => Number(match[1]));
+
+  assert.equal(response.status, 200);
+  assert.match(html, /<h1[^>]*>Ideas deserve their own orbit\.<\/h1>/);
+  assert.ok(contentOnly.length >= 500, `homepage text was only ${contentOnly.length} characters`);
+  assert.ok(headings.includes(1));
+  assert.ok(headings.filter((level) => level === 2).length >= 3);
+  assert.doesNotMatch(sections, /^\s*["']use client["']/);
+});
+
+test("versioned posts API returns typed errors and rate-limit metadata", async () => {
+  const headers = { Accept: "application/json", "X-API-Version": "1" };
+  const response = await request("/api/v1/posts", { headers });
+  assert.ok([200, 500].includes(response.status));
+  assert.equal(response.headers.get("api-version"), "1");
+  assert.match(response.headers.get("ratelimit-limit") ?? "", /^60$/);
+  assert.match(response.headers.get("ratelimit-remaining") ?? "", /^\d+$/);
+  assert.match(response.headers.get("ratelimit-reset") ?? "", /^\d+$/);
+  assert.match(response.headers.get("ratelimit") ?? "", /limit=60/);
+
+  if (response.status === 200) {
+    const body = await response.json();
+    assert.ok(Array.isArray(body.docs));
+    assert.equal(typeof body.totalDocs, "number");
+  } else {
+    assert.match(response.headers.get("content-type") ?? "", /^application\/problem\+json/);
+  }
+
+  const unsupportedVersion = await request("/api/v1/posts", {
+    headers: { Accept: "application/json", "X-API-Version": "2" },
+  });
+  assert.equal(unsupportedVersion.status, 400);
+  assert.match(unsupportedVersion.headers.get("content-type") ?? "", /^application\/problem\+json/);
+  const problem = await unsupportedVersion.json();
+  assert.equal(problem.status, 400);
+  assert.equal(problem.code, "unsupported_api_version");
+  assert.equal(typeof problem.message, "string");
+
+  const compatibility = await request("/api/posts", { headers: { Accept: "application/json" } });
+  assert.ok([200, 500].includes(compatibility.status));
+  assert.equal(compatibility.headers.get("api-version"), "1");
+});
+
+test("API rate limiting returns Retry-After when the quota is exceeded", async () => {
+  const rateLimitHeaders = {
+    Accept: "application/json",
+    "X-API-Version": "2",
+    "X-Forwarded-For": "203.0.113.17",
+  };
+  for (let index = 0; index < 60; index += 1) {
+    const response = await request(`/api/v1/posts?limit=1&probe=${index}`, { headers: rateLimitHeaders });
+    assert.equal(response.status, 400, `unexpected response at request ${index + 1}: ${response.status}`);
+  }
+
+  const limited = await request("/api/v1/posts?limit=1&probe=limited", { headers: rateLimitHeaders });
+  assert.equal(limited.status, 429);
+  assert.match(limited.headers.get("content-type") ?? "", /^application\/problem\+json/);
+  assert.equal(limited.headers.get("ratelimit-remaining"), "0");
+  assert.match(limited.headers.get("retry-after") ?? "", /^\d+$/);
+  const problem = await limited.json();
+  assert.equal(problem.code, "rate_limit_exceeded");
 });
 
 test("homepage exposes canonical, Open Graph, and JSON-LD identity data", async () => {
@@ -242,6 +343,14 @@ test("web manifest is valid and declares the existing favicon", async () => {
   const icon = await request("/icon.png");
   assert.equal(icon.status, 200);
   assert.match(icon.headers.get("content-type") ?? "", /^image\/png/);
+
+  const openGraphImage = await request("/opengraph-image");
+  assert.equal(openGraphImage.status, 200);
+  assert.match(openGraphImage.headers.get("content-type") ?? "", /^image\/png/);
+
+  const googleVerification = await request("/google333cd27a0755db9d.html");
+  assert.equal(googleVerification.status, 200);
+  assert.match(await googleVerification.text(), /google-site-verification: google333cd27a0755db9d\.html/);
 });
 
 test("Search Console verification has a documented build-time configuration path", async () => {
@@ -297,11 +406,40 @@ test("MCP endpoint completes initialization, discovery, tools, and compliant GET
     body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} }),
   });
   assert.equal(tools.status, 200);
-  assert.deepEqual((await tools.json()).result.tools.map((tool) => tool.name), ["search_portfolio", "get_site_guide"]);
+  const listedTools = (await tools.json()).result.tools;
+  assert.deepEqual(listedTools.map((tool) => tool.name), ["search_portfolio", "get_site_guide", "list_published_posts"]);
+  const postsTool = listedTools.find((tool) => tool.name === "list_published_posts");
+  assert.equal(postsTool.inputSchema.properties.limit.type, "integer");
+  assert.equal(postsTool.outputSchema.properties.totalPages.type, "integer");
+
+  const postsCall = await request("/.well-known/mcp", {
+    method: "POST",
+    headers: { ...requestHeaders, "MCP-Protocol-Version": "2025-06-18" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 4,
+      method: "tools/call",
+      params: { name: "list_published_posts", arguments: { limit: 1, page: 1 } },
+    }),
+  });
+  assert.equal(postsCall.status, 200);
+  const postsCallBody = await postsCall.json();
+  assert.equal(postsCallBody.jsonrpc, "2.0");
+  if (postsCallBody.result) {
+    assert.equal(typeof postsCallBody.result.structuredContent.totalDocs, "number");
+    assert.equal(typeof postsCallBody.result.structuredContent.totalPages, "number");
+  } else {
+    assert.equal(postsCallBody.error.code, -32603);
+  }
 
   const get = await request("/.well-known/mcp", { headers: { Accept: "text/event-stream" } });
   assert.equal(get.status, 405);
   assert.equal(get.headers.get("allow"), "POST");
+
+  const options = await request("/.well-known/mcp", { method: "OPTIONS" });
+  assert.equal(options.status, 204);
+  assert.match(options.headers.get("allow") ?? "", /POST/);
+  assert.match(options.headers.get("accept-post") ?? "", /application\/json/);
 
   const invalidOrigin = await request("/.well-known/mcp", {
     method: "POST",

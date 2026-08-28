@@ -20,6 +20,8 @@ export const CORE_SITE_PATHS = [
   "/developers/api",
   "/developers/auth",
   "/developers/mcp",
+  "/llms.txt",
+  "/openapi.json",
 ] as const;
 
 export function absoluteUrl(pathname = "/") {

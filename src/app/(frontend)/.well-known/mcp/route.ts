@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = handleMcpMessage(body);
+  const response = await handleMcpMessage(body);
   if (!response) return new Response(null, { status: 202, headers: transportHeaders() });
 
   return Response.json(response, {
@@ -79,6 +79,27 @@ export function GET(request: Request) {
   return methodNotAllowed();
 }
 
-export function DELETE() {
+export function OPTIONS(request: Request) {
+  if (!hasAllowedOrigin(request)) {
+    return new Response("Forbidden origin", { status: 403, headers: transportHeaders() });
+  }
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      ...transportHeaders(),
+      Allow: "POST, GET, DELETE, OPTIONS",
+      "Accept-Post": "application/json",
+      "Access-Control-Allow-Methods": "POST, GET, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, MCP-Protocol-Version, Last-Event-ID, Mcp-Session-Id",
+    },
+  });
+}
+
+export function DELETE(request: Request) {
+  if (!hasAllowedOrigin(request)) {
+    return new Response("Forbidden origin", { status: 403, headers: transportHeaders() });
+  }
+
   return methodNotAllowed();
 }

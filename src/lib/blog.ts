@@ -35,15 +35,27 @@ function hasConfiguredDatabase() {
   }
 }
 
-export const getPublishedPosts = cache(async function getPublishedPosts() {
-  if (!hasConfiguredDatabase()) return EMPTY_POSTS_RESULT;
+type PublishedPostsOptions = {
+  limit?: number;
+  page?: number;
+};
+
+export const getPublishedPosts = cache(async function getPublishedPosts({ limit = 100, page = 1 }: PublishedPostsOptions = {}) {
+  if (!hasConfiguredDatabase()) {
+    return {
+      ...EMPTY_POSTS_RESULT,
+      limit,
+      page,
+    };
+  }
 
   const payload = await getPayload({ config });
 
   return payload.find({
     collection: "posts",
     depth: 1,
-    limit: 100,
+    limit,
+    page,
     overrideAccess: false,
     sort: "-publishedAt",
     where: {

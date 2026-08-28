@@ -13,7 +13,7 @@ export default function McpDeveloperPage() {
   return (
     <StaticPage
       eyebrow="Laurent Maxhuni MCP Server"
-      title="Portfolio tools for agents."
+      title="Laurent Maxhuni MCP tools for agents."
       lead="A public, stateless Streamable HTTP endpoint for project search and site discovery."
       related={[
         { href: "/llms.txt", label: "llms.txt" },
@@ -25,6 +25,7 @@ export default function McpDeveloperPage() {
       <ul>
         <li><code>search_portfolio</code> searches public project names, summaries, descriptions, and technology tags.</li>
         <li><code>get_site_guide</code> returns the public portfolio guide, resource links, and agent workflow.</li>
+        <li><code>list_published_posts</code> exposes the versioned published-post API with typed pagination output.</li>
       </ul>
       <p>The server also exposes Markdown resources for the site guide and project index. It is read-only, does not require authentication, and does not expose private CMS data, credentials, or write operations.</p>
     </StaticPage>

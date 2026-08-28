@@ -1,10 +1,8 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Code2, Layers3, MessagesSquare, Orbit, Search } from "lucide-react";
+import { ArrowUpRight, Code2, Layers3, MessagesSquare, Orbit } from "lucide-react";
 import OrbitingSkills from "@/components/orbiting-skills";
+import RepositoryArchive from "@/components/repository-archive";
 import Reveal from "@/components/reveal";
 import GlobeStudy from "@/components/ui/globe-study";
 import { awards, credibilityNotes, projects, site, type Project } from "@/content/portfolio";
@@ -35,30 +33,14 @@ function ProjectMarqueeCard({ project, duplicate = false }: { project: Project; 
 }
 
 export function ProjectsSection() {
-  const marqueeRows = useMemo(
-    () => {
-      const featuredProjects = projects.filter((project) => project.kind === "product" || project.id === "ideator-dev");
-      const rotation = featuredProjects.length % projects.length;
-      const mixedProjects = [...projects.slice(rotation), ...projects.slice(0, rotation)];
-
-      return [
-        mixedProjects.filter((_, index) => index % 2 === 0),
-        mixedProjects.filter((_, index) => index % 2 !== 0),
-      ];
-    },
-    [],
-  );
-  const repositoryList = useMemo(
-    () => projects.filter((project) => project.kind === "repository" && project.id !== "ideator-dev"),
-    [],
-  );
-  const [query, setQuery] = useState("");
-
-  const visibleRepositories = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return repositoryList;
-    return repositoryList.filter((repo) => repo.title.toLowerCase().includes(normalized));
-  }, [query, repositoryList]);
+  const featuredProjects = projects.filter((project) => project.kind === "product" || project.id === "ideator-dev");
+  const rotation = featuredProjects.length % projects.length;
+  const mixedProjects = [...projects.slice(rotation), ...projects.slice(0, rotation)];
+  const marqueeRows = [
+    mixedProjects.filter((_, index) => index % 2 === 0),
+    mixedProjects.filter((_, index) => index % 2 !== 0),
+  ];
+  const repositoryList = projects.filter((project) => project.kind === "repository" && project.id !== "ideator-dev");
 
   return (
     <section id="projects" className="projects-section section" aria-labelledby="projects-title">
@@ -90,42 +72,7 @@ export function ProjectsSection() {
           ))}
         </div>
 
-        <Reveal className="repo-archive">
-          <div className="repo-archive__head">
-            <div>
-              <p className="section-kicker"><Code2 aria-hidden="true" size={16} /> Public repositories</p>
-              <h3>Repositories with the context to inspect them.</h3>
-            </div>
-            <label className="repo-search">
-              <Search aria-hidden="true" size={16} />
-              <span className="visually-hidden">Search repositories</span>
-              <input
-                type="search"
-                placeholder="Search repositories..."
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </label>
-          </div>
-          <ul className="repo-grid">
-            {visibleRepositories.map((repo) => (
-              <li key={repo.id}>
-                <Link
-                  className="repo-card"
-                  href={`/projects/${repo.id}`}
-                  aria-label={`Open ${repo.title} project brief`}
-                >
-                  <span className="repo-card__index">{String(projects.indexOf(repo) + 1).padStart(2, "0")}</span>
-                  <span className="repo-card__name">{repo.title}</span>
-                  <ArrowUpRight className="repo-card__arrow" size={17} aria-hidden="true" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-          {visibleRepositories.length === 0 && (
-            <p className="repo-empty" role="status">No repositories match &ldquo;{query.trim()}&rdquo;.</p>
-          )}
-        </Reveal>
+        <RepositoryArchive repositories={repositoryList} />
       </div>
     </section>
   );

@@ -2,9 +2,10 @@ import { capabilities, getProjectBySlug, projects, site } from "../content/portf
 import { CORE_SITE_PATHS, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
 
 const developerResources = [
-  ["Developer portal", "/developers", "Human-readable integration and discovery guide."],
-  ["Portfolio API reference", "/developers/api", "Read-only Payload REST API documentation."],
-  ["OpenAPI document", "/openapi.json", "Machine-readable OpenAPI 3.1 description for the public posts endpoint."],
+  ["Laurent Maxhuni developer portal", "/developers", "Human-readable integration and discovery guide."],
+  ["Laurent Maxhuni API reference", "/developers/api", "Read-only, versioned REST API documentation."],
+  ["Versioned posts endpoint", "/api/v1/posts", "Canonical read-only JSON endpoint for published posts."],
+  ["OpenAPI document", "/openapi.json", "Machine-readable OpenAPI 3.1 description with typed schemas and errors."],
   ["Authentication guide", "/developers/auth", "Public read access and admin authentication boundary."],
   ["MCP server guide", "/developers/mcp", "Connect with Streamable HTTP at /.well-known/mcp."],
   ["LLMs index", "/llms.txt", "Compact Markdown site index and agent usage guidance."],
@@ -92,7 +93,15 @@ The public read API is provided by Payload CMS. It exposes published blog posts 
 
 ## Endpoint
 
-- \`GET ${absoluteUrl("/api/posts")}\` — list published posts. The collection's public access policy excludes drafts.
+- \`GET ${absoluteUrl("/api/v1/posts")}\` — list published posts. The collection's public access policy excludes drafts. Use the typed \`limit\` (1–100) and \`page\` query parameters for pagination.
+
+The unversioned \`/api/posts\` URL remains a compatibility alias, but new integrations should use \`/api/v1/posts\`. Clients may send \`X-API-Version: 1\`; responses identify the selected version with \`API-Version: 1\`.
+
+## Errors and rate limits
+
+All documented 4xx and 5xx responses use \`application/problem+json\` with \`type\`, \`title\`, \`status\`, stable machine-readable \`code\`, and human-readable \`message\` and \`detail\` fields. A client can branch on \`code\` without parsing prose. Every API response includes \`RateLimit-Limit\`, \`RateLimit-Remaining\`, \`RateLimit-Reset\`, and the combined IETF \`RateLimit\` header. A \`429\` response also includes \`Retry-After\`.
+
+The current policy allows 60 requests per client per 60-second window. Future endpoint deprecations will send \`Deprecation: true\` and a \`Sunset\` HTTP-date, with the migration timeline published here before removal.
 
 For the formal request and response description, use [openapi.json](${absoluteUrl("/openapi.json")}). Use [the blog](${absoluteUrl("/blog")}) or its Markdown representation for presentation-focused reading.
 `;
@@ -116,6 +125,7 @@ Connect an MCP client to \`${absoluteUrl("/.well-known/mcp")}\` using the Stream
 
 - \`search_portfolio\` — search public project names, summaries, descriptions, and tags.
 - \`get_site_guide\` — retrieve agent-specific guidance and developer-resource links.
+- \`list_published_posts\` — retrieve published signal-archive posts with typed pagination metadata.
 
 ## Resources
 

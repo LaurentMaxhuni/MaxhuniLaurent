@@ -16,6 +16,13 @@ export const metadata: Metadata = {
     url: "/",
     title: "Laurent Maxhuni | Developer and product builder",
     description: SITE_DESCRIPTION,
+    images: [{ url: absoluteUrl("/opengraph-image"), width: 1200, height: 630, alt: "Laurent Maxhuni developer and product builder" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Laurent Maxhuni | Developer and product builder",
+    description: SITE_DESCRIPTION,
+    images: [absoluteUrl("/opengraph-image")],
   },
 };
 

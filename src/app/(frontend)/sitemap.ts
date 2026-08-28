@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: absoluteUrl(pathname),
     lastModified: new Date("2026-08-27T00:00:00.000Z"),
     changeFrequency: pathname === "/blog" ? "daily" : "monthly",
-    priority: pathname === "/" ? 1 : pathname.startsWith("/developers") ? 0.7 : 0.8,
+    priority: pathname === "/" ? 1 : pathname.startsWith("/developers") || pathname === "/llms.txt" || pathname === "/openapi.json" ? 0.7 : 0.8,
   }));
   const projectPages: MetadataRoute.Sitemap = projects.map((project) => ({
     url: absoluteUrl(`/projects/${project.id}`),

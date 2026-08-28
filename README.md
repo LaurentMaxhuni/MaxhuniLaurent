@@ -58,3 +58,9 @@ pnpm payload generate:types
 To verify the deployed domain with Google Search Console, add the token Google provides for the HTML meta-tag verification method as `GOOGLE_SITE_VERIFICATION` in the Vercel project environment variables, then redeploy. Use the token value only, not the full `<meta>` tag. The application emits the verification tag only when this variable is configured. After verification, submit `https://laurentmaxhuni.vercel.app/sitemap.xml` in Search Console.
 
 The homepage uses Google Search's official Preferred Sources publisher button with no supplemental marketing copy or fallback control. The feature applies to the site's domain rather than an individual page.
+
+## Agent and developer resources
+
+The developer portal is available at `https://laurentmaxhuni.vercel.app/developers`. The canonical public posts endpoint is `GET /api/v1/posts`; `GET /api/posts` remains a compatibility alias. The API contract is published at `/openapi.json` with typed `application/problem+json` errors, `X-API-Version: 1` compatibility negotiation, and `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`, `RateLimit`, and `Retry-After` headers.
+
+The stateless Streamable HTTP MCP endpoint is `https://laurentmaxhuni.vercel.app/.well-known/mcp`. It exposes `search_portfolio`, `get_site_guide`, and `list_published_posts` tools. `llms.txt` and `sitemap.xml` link the public developer resources for crawlers and agents.

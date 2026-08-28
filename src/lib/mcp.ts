@@ -1,5 +1,6 @@
 import { projects } from "../content/portfolio";
 import { homepageMarkdown } from "./agent-content";
+import { getPublishedPosts, getPostTags } from "./blog";
 import { SITE_NAME, SITE_URL } from "./site";
 
 export const MCP_PROTOCOL_VERSION = "2025-06-18";
@@ -46,6 +47,41 @@ const tools = [
       type: "object",
       additionalProperties: false,
       properties: {},
+    },
+  },
+  {
+    name: "list_published_posts",
+    title: "List Laurent Maxhuni published posts",
+    description: "Return published signal-archive posts with pagination metadata. This is the MCP form of the public REST posts API.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: 100,
+          default: 20,
+          description: "Maximum number of posts to return.",
+        },
+        page: {
+          type: "integer",
+          minimum: 1,
+          default: 1,
+          description: "One-based page number.",
+        },
+      },
+    },
+    outputSchema: {
+      type: "object",
+      required: ["docs", "totalDocs", "limit", "page", "totalPages"],
+      properties: {
+        docs: { type: "array", items: { type: "object" } },
+        totalDocs: { type: "integer", minimum: 0 },
+        limit: { type: "integer", minimum: 1 },
+        page: { type: "integer", minimum: 1 },
+        totalPages: { type: "integer", minimum: 0 },
+      },
     },
   },
 ] as const;
@@ -110,8 +146,15 @@ function getStringParameter(params: unknown, key: string) {
   return typeof value === "string" ? value : null;
 }
 
+function getIntegerParameter(params: unknown, key: string, fallback: number, minimum: number, maximum: number) {
+  if (!params || typeof params !== "object") return fallback;
+  const value = (params as Record<string, unknown>)[key];
+  if (typeof value !== "number" || !Number.isInteger(value)) return fallback;
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
 /** Returns undefined for accepted JSON-RPC notifications, which map to HTTP 202. */
-export function handleMcpMessage(message: unknown): JsonRpcResponse | undefined {
+export async function handleMcpMessage(message: unknown): Promise<JsonRpcResponse | undefined> {
   if (!message || typeof message !== "object" || Array.isArray(message)) {
     return error(null, -32600, "Invalid Request");
   }
@@ -205,6 +248,35 @@ export function handleMcpMessage(message: unknown): JsonRpcResponse | undefined 
           : `No public projects matched “${query.trim()}”. Try a product name, technology, or broader term.`;
 
         return response(id, toolResult(text, { query: query.trim(), matches }));
+      }
+
+      if (name === "list_published_posts") {
+        const limit = getIntegerParameter(argumentsValue, "limit", 20, 1, 100);
+        const page = getIntegerParameter(argumentsValue, "page", 1, 1, Number.MAX_SAFE_INTEGER);
+
+        try {
+          const result = await getPublishedPosts({ limit, page });
+          const docs = result.docs.map((post) => ({
+            id: post.id,
+            title: post.title,
+            slug: post.slug,
+            excerpt: post.excerpt,
+            content: post.content,
+            publishedAt: post.publishedAt ?? null,
+            updatedAt: post.updatedAt,
+            tags: getPostTags(post),
+          }));
+          const totalDocs = result.totalDocs;
+          const totalPages = result.totalPages;
+          const structuredContent = { docs, totalDocs, limit, page, totalPages };
+          const text = docs.length
+            ? docs.map((post) => `- **${post.title}** — ${post.excerpt}`).join("\n")
+            : "No published posts were found on this page.";
+
+          return response(id, toolResult(text, structuredContent));
+        } catch {
+          return error(id, -32603, "The published posts API is temporarily unavailable");
+        }
       }
 
       return error(id, -32602, "Unknown tool", { name });

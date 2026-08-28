@@ -15,7 +15,7 @@ export default function DevelopersPage() {
   return (
     <StaticPage
       eyebrow="Laurent Maxhuni Developer Resources"
-      title="Public resources for people and agents."
+      title="Laurent Maxhuni developer resources."
       lead="Find the API, Markdown routes, sitemap, and MCP server in one place."
       related={[
         { href: "/developers/api", label: "Portfolio API" },
@@ -28,7 +28,8 @@ export default function DevelopersPage() {
       <h2>Start here</h2>
       <ul>
         <li><a href="/llms.txt">llms.txt</a> provides the concise site index and agent usage guidance.</li>
-        <li><a href="/openapi.json">openapi.json</a> describes the read-only published-posts endpoint.</li>
+        <li><a href="/openapi.json">openapi.json</a> describes the versioned read-only published-posts endpoint, typed errors, and rate-limit headers.</li>
+        <li><Link href="/api/v1/posts"><code>/api/v1/posts</code></Link> is the canonical versioned JSON endpoint for published posts.</li>
         <li><Link href="/.well-known/mcp">/.well-known/mcp</Link> is the live Streamable HTTP MCP endpoint.</li>
         <li><a href="/sitemap.xml">sitemap.xml</a> lists indexable public URLs.</li>
       </ul>
