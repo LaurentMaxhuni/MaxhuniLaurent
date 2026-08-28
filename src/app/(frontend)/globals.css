@@ -145,7 +145,7 @@ h1, h2, h3, p { margin: 0; }
 .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 17px; margin-top: 31px; }
 .blue-button, .round-link { display: inline-flex; min-height: 51px; align-items: center; justify-content: center; gap: 9px; border: 1px solid transparent; border-radius: 999px; font-size: .88rem; font-weight: 790; transition: transform .22s ease, box-shadow .22s ease, background .22s ease; }
 .blue-button { padding: 0 19px; color: #03122d; background: linear-gradient(135deg, #92d8ff, #3a7fff); box-shadow: 0 13px 26px rgba(39, 119, 255, .27), inset 0 1px rgba(255, 255, 255, .5); }
-.blue-button:hover, .round-link:hover { transform: translateY(-3px); }
+.round-link:hover { transform: translateY(-3px); }
 .blue-button:hover { box-shadow: 0 20px 32px rgba(39, 119, 255, .4), inset 0 1px rgba(255, 255, 255, .5); }
 .hero__link { display: inline-flex; align-items: center; gap: 7px; color: #e9f4ff; font-size: .91rem; font-weight: 730; }
 .hero__link:hover { color: #80cfff; }
@@ -169,6 +169,7 @@ h1, h2, h3, p { margin: 0; }
 .section { padding: 88px 0; }
 .section-intro { max-width: 770px; }
 .section-intro h2, .about-card h2, .contact-orbit h2 { margin-top: 14px; font-size: clamp(2.5rem, 5.5vw, 5rem); line-height: .94; }
+.practice-section__intro-note { max-width: 520px; margin-top: 19px; color: #bab4ac; font-size: clamp(.92rem, 1.5vw, 1.05rem); line-height: 1.55; }
 .section-intro--split { display: grid; gap: 20px; max-width: none; align-items: end; }
 .section-intro--split > p { max-width: 420px; color: #aec2e7; font-size: 1rem; line-height: 1.55; }
 
@@ -245,7 +246,7 @@ h1, h2, h3, p { margin: 0; }
 .contact-orbit > p:not(.section-kicker) { max-width: 540px; margin: 20px auto 0; color: #d4e9ff; font-size: 1.05rem; line-height: 1.55; }
 .blue-button--large { min-height: 58px; margin-top: 30px; padding-right: 23px; padding-left: 23px; font-size: .96rem; }
 .contact-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 21px; margin-top: 25px; }
-.contact-links__link { display: inline-flex; align-items: center; gap: 6px; color: #d4ebff; font-size: .84rem; font-weight: 750; }
+.contact-links__link { display: inline-flex; min-height: 38px; align-items: center; gap: 6px; padding: 0 11px; border: 1px solid rgba(204, 224, 239, .19); border-radius: 999px; color: #d4ebff; font-size: .84rem; font-weight: 750; transition: color .2s ease, border-color .2s ease, background .2s ease; }
 
 .google-preferred-source { width: min(1180px, calc(100% - 40px)); margin: 0 auto 56px; padding: clamp(27px, 4vw, 42px); border: 1px solid rgba(197, 222, 241, .22); border-radius: 32px; background: linear-gradient(145deg, rgba(20, 32, 42, .95), rgba(8, 11, 15, .98)); box-shadow: inset 0 1px rgba(255, 255, 255, .10); text-align: center; }
 .google-preferred-source h2 { max-width: 680px; margin: 13px auto 0; color: #f4f8fb; font-family: var(--font-display), Arial, sans-serif; font-size: clamp(2rem, 4vw, 3.55rem); font-weight: 700; letter-spacing: -.055em; line-height: .95; text-wrap: balance; }
@@ -485,15 +486,6 @@ h1, h2, h3, p { margin: 0; }
 .practice-orbit::before, .practice-orbit::after { position: absolute; width: 122%; aspect-ratio: 1; border: 1px solid rgba(176, 225, 252, .13); border-radius: 50%; content: ""; pointer-events: none; }
 .practice-orbit::before { transform: rotate(22deg) scaleY(.46); }
 .practice-orbit::after { transform: rotate(-42deg) scaleY(.27); }
-.orbiting-skills { position: relative; width: min(94vw, 730px); aspect-ratio: 1; isolation: isolate; }
-.orbiting-skills::before, .orbiting-skills::after { position: absolute; z-index: -1; top: 50%; left: 50%; width: 84%; aspect-ratio: 1; border: 1px solid rgba(190, 229, 255, .2); border-radius: 50%; content: ""; transform: translate(-50%, -50%) rotate(-17deg) scaleY(.46); }
-.orbiting-skills::after { width: 58%; border-color: rgba(190, 229, 255, .15); transform: translate(-50%, -50%) rotate(28deg) scaleY(.46); }
-.orbiting-skills__core { position: absolute; top: 50%; left: 50%; display: grid; width: 162px; height: 162px; place-content: center; border: 1px solid rgba(205, 237, 255, .52); border-radius: 50%; color: #eff9ff; background: radial-gradient(circle at 32% 28%, #82cdf6, #174c85 46%, #06172e 73%); box-shadow: 0 0 0 13px rgba(140, 209, 255, .05), 0 0 85px rgba(73, 173, 255, .27), inset 0 1px rgba(255, 255, 255, .38); text-align: center; transform: translate(-50%, -50%); }
-.orbiting-skills__core span { color: #d8f2ff; font-size: .65rem; font-weight: 850; letter-spacing: .16em; }
-.orbiting-skills__core strong { margin-top: 6px; font-family: var(--font-display), Arial, sans-serif; font-size: 1.42rem; letter-spacing: -.055em; line-height: .88; }
-.orbiting-skills__satellite { position: absolute; top: 50%; left: 50%; display: grid; min-height: 34px; place-items: center; padding: 0 11px; border: 1px solid rgba(193, 230, 252, .28); border-radius: 999px; color: #ddf3ff; background: rgba(10, 25, 38, .84); box-shadow: 0 8px 25px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .12); font-size: clamp(.66rem, 1.35vw, .79rem); font-weight: 760; white-space: nowrap; transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--orbit)) rotate(calc(-1 * var(--angle))); animation: satellite-drift 5s ease-in-out infinite var(--delay); }
-@keyframes satellite-drift { 50% { margin-top: -12px; box-shadow: 0 13px 28px rgba(53, 158, 235, .24), inset 0 1px rgba(255, 255, 255, .17); } }
-
 .google-preferred-source { display: flex; width: fit-content; min-height: 40px; justify-content: center; margin: 0 auto 40px; }
 
 .project-case { min-height: 100svh; padding-bottom: 90px; }
@@ -550,17 +542,9 @@ h1, h2, h3, p { margin: 0; }
   .hero::before { width: 142vw; }
   .hero-orbit { min-height: 310px; }
   .practice-orbit { min-height: 470px; border-radius: 28px; }
-  .orbiting-skills { width: min(100%, 730px); }
-  .orbiting-skills__core { width: 90px; height: 90px; }
-  .orbiting-skills__core strong { font-size: 1rem; }
-  .orbiting-skills__satellite { padding: 0 8px; font-size: .58rem; }
   .project-case__hero { padding-top: 124px; }
   .project-case__visual { border-radius: 25px; }
   .mission-card, .project-case__links { border-radius: 24px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orbiting-skills__satellite { animation: none; }
 }
 
 /* Black-hole revision: quiet, monochrome depth without decorative bloom. */
@@ -586,7 +570,7 @@ body {
 .hero--black-hole { min-height: min(940px, 100svh); background: #020202; }
 .hero--black-hole .hero__layout { position: relative; z-index: 3; }
 .hero--black-hole .hero__copy { max-width: 650px; }
-.hero--black-hole h1 { margin-top: 0; color: #f7f3ed; font-size: clamp(3.7rem, 8.6vw, 8rem); }
+.hero--black-hole h1 { margin-top: 0; color: #f7f3ed; font-size: clamp(3.5rem, 8.2vw, 7.6rem); }
 .hero--black-hole .hero__copy > p { color: #c6c1b9; }
 .hero::before, .hero__flare { display: none; }
 
@@ -613,11 +597,7 @@ body {
 .round-link:hover { border-color: rgba(255, 255, 255, .4); background: rgba(255, 255, 255, .09); }
 
 .practice-orbit { border-color: rgba(255, 255, 255, .14); background: #0a0a0a; }
-.practice-orbit::before, .practice-orbit::after, .orbiting-skills::before, .orbiting-skills::after { border-color: rgba(255, 255, 255, .14); }
-.orbiting-skills__core { border-color: rgba(255, 255, 255, .45); color: #f6f1ea; background: #111; box-shadow: none; }
-.orbiting-skills__core span { color: #c8c1b8; }
-.orbiting-skills__satellite { border-color: rgba(255, 255, 255, .24); color: #e7e1d9; background: #111; box-shadow: none; }
-@keyframes satellite-drift { 50% { margin-top: -12px; box-shadow: none; } }
+.practice-orbit::before, .practice-orbit::after { border-color: rgba(255, 255, 255, .14); }
 .credibility-list li::before { background: #d8d1c8; box-shadow: none; }
 
 .about-card { border-color: rgba(255, 255, 255, .18); background: linear-gradient(145deg, #262522, #111); }
@@ -643,7 +623,7 @@ body {
   .hero--black-hole { min-height: 1040px; align-items: start; padding-top: 132px; padding-bottom: 42px; }
   .hero--black-hole .hero__layout { display: block; }
   .hero--black-hole .hero__copy { width: min(100%, 340px); max-width: 340px; }
-  .hero--black-hole h1 { font-size: clamp(2.9rem, 14vw, 3.7rem); letter-spacing: -.07em; overflow-wrap: anywhere; text-wrap: wrap; }
+  .hero--black-hole h1 { font-size: clamp(2.8rem, 13.5vw, 3.5rem); letter-spacing: -.07em; overflow-wrap: anywhere; text-wrap: wrap; }
   .hero--black-hole .hero__actions { gap: 10px; }
   .hero__black-hole { inset: 500px -55% -100px; }
   .contact-orbit__globe { right: 50%; bottom: -116px; width: min(78vw, 330px); transform: translateX(50%); }
@@ -663,3 +643,78 @@ body {
   box-shadow: none;
 }
 .google-preferred-source__button { display: flex; min-height: 40px; align-items: center; justify-content: center; }
+
+/* Selected work moves as two calm, interruptible lanes. */
+.project-marquees { position: relative; display: grid; gap: 14px; margin-top: clamp(30px, 5vw, 58px); margin-right: calc(50% - 50vw); margin-left: calc(50% - 50vw); overflow: hidden; }
+.project-marquee { min-width: 0; }
+.project-marquee__viewport { overflow: hidden; padding: 4px 0 9px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.project-marquee__track { display: flex; width: max-content; will-change: transform; animation-timing-function: linear; animation-iteration-count: infinite; }
+.project-marquee--forward .project-marquee__track { animation: project-marquee-forward 48s infinite linear; }
+.project-marquee--reverse .project-marquee__track { animation: project-marquee-reverse 56s infinite linear; }
+.project-marquee__set { display: flex; flex: none; gap: 14px; padding-right: 14px; }
+.project-marquee__card { position: relative; display: flex; width: clamp(270px, 31vw, 360px); min-height: 280px; flex: none; flex-direction: column; overflow: hidden; padding: 15px 16px 17px; border: 1px solid rgba(255, 255, 255, .14); border-radius: 24px; color: #f4f0e9; background: #111; transition: border-color .25s ease, background .25s ease; }
+.project-marquee__card:hover { border-color: rgba(255, 255, 255, .48); background: #171717; }
+.project-marquee__media { position: relative; display: block; height: 142px; overflow: hidden; border-radius: 16px; background: #080808; }
+.project-marquee__media img { object-fit: cover; filter: grayscale(.24) contrast(1.04); transition: transform .35s ease, filter .35s ease; }
+.project-marquee__card:hover .project-marquee__media img { filter: grayscale(0) contrast(1.06); transform: scale(1.035); }
+.project-marquee__shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 48%, rgba(0, 0, 0, .48)); pointer-events: none; }
+.project-marquee__meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; color: #aaa49c; font-size: .65rem; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.project-marquee__title { margin-top: 7px; font-family: var(--font-display), Arial, sans-serif; font-size: clamp(1.45rem, 2.4vw, 2rem); letter-spacing: -.055em; line-height: .95; }
+.project-marquee__summary { display: -webkit-box; overflow: hidden; max-width: 290px; margin-top: 9px; color: #bab4ac; font-size: .78rem; line-height: 1.42; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.project-marquee__arrow { position: absolute; top: 19px; right: 20px; display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid rgba(255, 255, 255, .28); border-radius: 50%; color: #f5f1eb; background: rgba(5, 5, 5, .68); transition: background .2s ease, transform .2s ease; }
+.project-marquee__card:hover .project-marquee__arrow { background: #222; transform: translate(2px, -2px); }
+.project-marquee__viewport:hover .project-marquee__track, .project-marquee__viewport:focus-within .project-marquee__track { animation-play-state: paused; }
+@keyframes project-marquee-forward { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes project-marquee-reverse { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+/* CTA controls keep their place; hover still gets a quiet colour change. */
+.hero__actions .blue-button:hover, .contact-orbit .blue-button:hover { transform: none; }
+.contact-links__link:hover { color: #fff; border-color: rgba(255, 255, 255, .42); background: rgba(255, 255, 255, .08); }
+
+@media (max-width: 699px) {
+  .hero--black-hole { min-height: 820px; }
+  .hero__black-hole { inset: auto 0 0; height: clamp(340px, 52svh, 430px); opacity: .72; -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent); mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent); }
+  .project-marquees { gap: 11px; margin-top: 29px; }
+  .project-marquee__viewport { padding-bottom: 7px; }
+  .project-marquee__set { gap: 11px; padding-right: 11px; }
+  .project-marquee__card { width: min(78vw, 330px); min-height: 263px; padding: 13px 14px 15px; border-radius: 21px; }
+  .project-marquee__media { height: 128px; border-radius: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-marquee__track { animation: none !important; transform: none !important; }
+  .project-marquee__viewport { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .project-marquee__set[aria-hidden="true"] { display: none; }
+}
+
+/* Orbiting Circles 02: three evenly spaced rings around a centered globe. */
+.orbiting-skills { width: min(100%, 920px); height: clamp(560px, 59vw, 860px); aspect-ratio: auto; transform: none; }
+.orbiting-skills::before, .orbiting-skills::after { display: none; }
+.practice-orbit::before, .practice-orbit::after { display: none; }
+.orbiting-skills .orbiting-circles-02__ring--1 { border-color: rgba(255, 255, 255, .25); }
+.orbiting-skills .orbiting-circles-02__ring--2 { border-color: rgba(255, 255, 255, .17); }
+.orbiting-skills .orbiting-circles-02__ring--3 { border-color: rgba(255, 255, 255, .3); }
+.orbiting-skills__mark { position: relative; display: grid; width: 52px; height: 52px; place-items: center; border: 1px solid color-mix(in srgb, var(--brand-color) 48%, white 18%); border-radius: 50%; background: rgba(9, 9, 9, .92); box-shadow: 0 0 0 5px color-mix(in srgb, var(--brand-color) 12%, transparent), 0 10px 25px rgba(0, 0, 0, .4), inset 0 1px rgba(255, 255, 255, .14); transition: border-color .2s ease, background .2s ease, box-shadow .2s ease; }
+.orbiting-skills__mark img { width: 32px; height: 32px; object-fit: contain; }
+.orbiting-skills__label { position: absolute; top: calc(100% + 9px); left: 50%; z-index: 3; width: max-content; max-width: 160px; padding: 6px 8px; border: 1px solid color-mix(in srgb, var(--brand-color) 36%, white 18%); border-radius: 7px; color: #f2eee8; background: rgba(12, 12, 12, .96); box-shadow: 0 8px 20px rgba(0, 0, 0, .32); font-size: .62rem; font-weight: 750; line-height: 1.2; opacity: 0; pointer-events: none; text-align: center; transform: translateX(-50%) translateY(-4px); transition: opacity .2s ease, transform .2s ease; white-space: normal; }
+.orbiting-skills__mark { cursor: help; outline: none; pointer-events: auto; }
+.orbiting-skills__mark:hover, .orbiting-skills__mark:focus-visible { border-color: var(--brand-color); background: #1c1c1c; box-shadow: 0 0 0 6px color-mix(in srgb, var(--brand-color) 18%, transparent), 0 0 28px color-mix(in srgb, var(--brand-color) 38%, transparent); }
+.orbiting-skills__mark:hover .orbiting-skills__label, .orbiting-skills__mark:focus-visible .orbiting-skills__label { opacity: 1; transform: translateX(-50%) translateY(0); }
+.orbiting-skills__mark[data-skill="Rust"] img { filter: brightness(0) invert(1); }
+
+/* The contact globe is now the center of the CTA, large enough to read as the visual anchor. */
+.contact-orbit { min-height: clamp(560px, 48vw, 720px); display: grid; place-items: center; padding: clamp(72px, 9vw, 120px) clamp(25px, 6vw, 80px); isolation: isolate; }
+.contact-orbit__globe { right: 50%; bottom: 50%; width: clamp(390px, 55vw, 720px); transform: translate(50%, 50%); opacity: .58; }
+
+/* Use the supplied logo's colored code marks as the navbar symbol, without its name. */
+.wordmark > span.wordmark__mark { position: relative; display: block; width: 36px; height: 18px; flex: 0 0 36px; overflow: hidden; border-radius: 0; color: transparent; background: transparent; }
+.wordmark__mark img { position: static; display: block; width: 36px; max-width: 100%; height: 18px; }
+
+@media (max-width: 699px) {
+  .orbiting-skills { width: min(100%, 520px); height: 560px; }
+  .orbiting-skills .orbiting-circles-02__center { width: 240px; }
+  .orbiting-skills__mark { width: 44px; height: 44px; }
+  .orbiting-skills__mark img { width: 27px; height: 27px; }
+  .contact-orbit { min-height: 550px; padding: 70px 20px; }
+  .contact-orbit__globe { width: min(126vw, 520px); bottom: 48%; opacity: .5; }
+}

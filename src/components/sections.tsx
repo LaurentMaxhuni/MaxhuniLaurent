@@ -2,47 +2,50 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight, Code2, Layers3, MessagesSquare, Orbit, Search } from "lucide-react";
 import OrbitingSkills from "@/components/orbiting-skills";
-import TiltedCard from "@/components/TiltedCard";
 import Reveal from "@/components/reveal";
-import { Link001 } from "@/components/ui/skiper-ui/skiper40";
 import GlobeStudy from "@/components/ui/globe-study";
 import { awards, credibilityNotes, projects, site, type Project } from "@/content/portfolio";
 
-function ProjectPreview({ project }: { project: Project }) {
+function ProjectMarqueeCard({ project, duplicate = false }: { project: Project; duplicate?: boolean }) {
   const asset = project.screenshots[0] ?? project.artwork;
 
-  if (!asset) return null;
-
   return (
-    <div className="project-preview">
-      <TiltedCard
-        imageSrc={asset.src}
-        altText={asset.alt}
-        captionText="move your cursor"
-        containerHeight="100%"
-        imageHeight="100%"
-        imageWidth="100%"
-        scaleOnHover={1.025}
-        rotateAmplitude={8}
-        showMobileWarning={false}
-        showTooltip={false}
-        displayOverlayContent
-        overlayContent={
-          <div className="project-preview__overlay" aria-hidden="true">
-            <span>selected work</span>
-            <span>{project.kind === "product" ? "live product" : "repository"}</span>
-          </div>
-        }
-      />
-    </div>
+    <Link
+      className="project-marquee__card"
+      href={`/projects/${project.id}`}
+      tabIndex={duplicate ? -1 : undefined}
+      aria-hidden={duplicate || undefined}
+    >
+      <span className="project-marquee__media">
+        {asset ? <Image src={asset.src} alt={duplicate ? "" : asset.alt} fill sizes="(max-width: 699px) 78vw, 360px" /> : null}
+        <span className="project-marquee__shade" aria-hidden="true" />
+      </span>
+      <span className="project-marquee__meta">
+        <span>{project.kind === "product" ? "live build" : "repository"}</span>
+        <span>{String(projects.indexOf(project) + 1).padStart(2, "0")}</span>
+      </span>
+      <span className="project-marquee__title">{project.title}</span>
+      <span className="project-marquee__summary">{project.summary}</span>
+      <span className="project-marquee__arrow" aria-hidden="true"><ArrowUpRight size={18} /></span>
+    </Link>
   );
 }
 
 export function ProjectsSection() {
-  const featuredProjects = useMemo(
-    () => projects.filter((project) => project.kind === "product" || project.id === "ideator-dev"),
+  const marqueeRows = useMemo(
+    () => {
+      const featuredProjects = projects.filter((project) => project.kind === "product" || project.id === "ideator-dev");
+      const rotation = featuredProjects.length % projects.length;
+      const mixedProjects = [...projects.slice(rotation), ...projects.slice(0, rotation)];
+
+      return [
+        mixedProjects.filter((_, index) => index % 2 === 0),
+        mixedProjects.filter((_, index) => index % 2 !== 0),
+      ];
+    },
     [],
   );
   const repositoryList = useMemo(
@@ -66,40 +69,23 @@ export function ProjectsSection() {
             <h2 id="projects-title">Work built around real problems.</h2>
           </div>
           <p>
-            Featured work first, then the full public archive. Every project links to its source or live product.
+            The full project line-up is mixed across two steady lanes. Pause a lane to choose a project, then use the archive to inspect the details.
           </p>
         </Reveal>
 
-        <div className="featured-grid">
-
-          {featuredProjects.map((project) => (
-            <Reveal key={project.id}>
-              <article className="featured-card" aria-labelledby={`project-${project.id}`}>
-                <ProjectPreview project={project} />
-                <div className="featured-card__copy">
-                  <p className="featured-card__meta">
-                    <span>{project.kind === "product" ? "featured build" : "source archive"}</span>
-                    <span>
-                      {String(projects.indexOf(project) + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
-                    </span>
-                  </p>
-                  <h3 id={`project-${project.id}`}>{project.title}</h3>
-                  <p className="featured-card__summary">{project.summary}</p>
-                  <ul className="tag-list" aria-label={`${project.title} technologies`}>
-                    {project.tags.map((tag) => <li key={tag}>{tag}</li>)}
-                  </ul>
-                  <div className="featured-card__links">
-                    <Link className="round-link" href={`/projects/${project.id}`}>
-                      About project <ArrowUpRight aria-hidden="true" size={17} />
-                    </Link>
-                    {project.links.map((link) => (
-                      <a key={link.href} className="round-link" href={link.href} target="_blank" rel="noreferrer">
-                        {link.label} <ArrowUpRight aria-hidden="true" size={17} />
-                      </a>
-                    ))}
+        <div className="project-marquees" role="region" aria-label="Selected projects">
+          {marqueeRows.map((row, rowIndex) => (
+            <Reveal key={rowIndex} className={`project-marquee project-marquee--${rowIndex === 0 ? "forward" : "reverse"}`}>
+              <div className="project-marquee__viewport">
+                <div className="project-marquee__track">
+                  <div className="project-marquee__set">
+                    {row.map((project) => <ProjectMarqueeCard key={project.id} project={project} />)}
+                  </div>
+                  <div className="project-marquee__set" aria-hidden="true">
+                    {row.map((project) => <ProjectMarqueeCard key={`${project.id}-duplicate`} project={project} duplicate />)}
                   </div>
                 </div>
-              </article>
+              </div>
             </Reveal>
           ))}
         </div>
@@ -152,6 +138,7 @@ export function PracticeSection() {
         <Reveal className="section-intro">
           <p className="section-kicker"><Orbit aria-hidden="true" size={16} /> Technical range</p>
           <h2 id="practice-title">A broad stack with a consistent approach.</h2>
+          <p className="practice-section__intro-note">Explore the tools behind the interfaces, products, and AI systems I build.</p>
         </Reveal>
         <Reveal className="practice-orbit">
           <OrbitingSkills />
@@ -212,7 +199,7 @@ export function ContactSection() {
       <div className="shell">
         <Reveal className="contact-orbit">
           <div className="contact-orbit__globe" aria-hidden="true">
-            <GlobeStudy opacity={0.48} brightness={0.9} />
+            <GlobeStudy opacity={0.78} brightness={1.04} />
           </div>
           <p className="section-kicker">Contact</p>
           <h2 id="contact-title">Let&apos;s talk about the work.</h2>
@@ -221,8 +208,8 @@ export function ContactSection() {
             {primaryLabel} <ArrowUpRight aria-hidden="true" size={20} />
           </a>
           <div className="contact-links" aria-label="Secondary contact links">
-            {github && <Link001 href={github.href} className="contact-links__link"><Code2 aria-hidden="true" size={17} /> GitHub</Link001>}
-            {linkedin && <Link001 href={linkedin.href} className="contact-links__link"><MessagesSquare aria-hidden="true" size={17} /> LinkedIn</Link001>}
+            {github && <a href={github.href} target="_blank" rel="noreferrer" className="contact-links__link"><Code2 aria-hidden="true" size={17} /> GitHub</a>}
+            {linkedin && <a href={linkedin.href} target="_blank" rel="noreferrer" className="contact-links__link"><MessagesSquare aria-hidden="true" size={17} /> LinkedIn</a>}
           </div>
         </Reveal>
       </div>

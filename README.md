@@ -14,7 +14,7 @@ Create a `.env` file with the following values:
 
 ```bash
 PAYLOAD_SECRET=replace-with-a-long-random-secret
-DATABASE_URI=postgresql://USER:PASSWORD@YOUR-ENDPOINT-pooler.REGION.aws.neon.tech/neondb?sslmode=require
+DATABASE_URI=postgresql://USER:PASSWORD@YOUR-ENDPOINT-pooler.REGION.aws.neon.tech/neondb?sslmode=verify-full
 BLOB_READ_WRITE_TOKEN=vercel-blob-read-write-token
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 GOOGLE_SITE_VERIFICATION=your-google-search-console-token

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -30,7 +31,9 @@ export default function Navbar() {
     <header className="site-header">
       <nav className="nav" aria-label="Primary navigation">
         <a className="wordmark" href={pathname === "/" ? "#top" : "/#top"} onClick={() => setOpen(false)}>
-          <span aria-hidden="true">LM</span>
+          <span className="wordmark__mark" aria-hidden="true">
+            <Image src="/logo-mark.png" alt="" width={36} height={18} />
+          </span>
           <span>Laurent Maxhuni</span>
         </a>
         <button

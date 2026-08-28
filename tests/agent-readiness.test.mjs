@@ -143,7 +143,7 @@ test("homepage uses the black-hole hero, places the globe in contact CTA, promot
   assert.doesNotMatch(hero, /GlobeStudy|PlanetScene|Sparkles|hero__flare|@\/components\/black-hole-hero/);
   assert.match(sections, /@\/components\/ui\/globe-study/);
   assert.match(sections, /contact-orbit__globe/);
-  assert.match(sections, /<GlobeStudy opacity=\{0\.48\} brightness=\{0\.9\}/);
+  assert.match(sections, /<GlobeStudy opacity=\{0\.78\} brightness=\{1\.04\}/);
   assert.match(sections, /project\.kind === "product" \|\| project\.id === "ideator-dev"/);
   assert.match(sections, /project\.kind === "repository" && project\.id !== "ideator-dev"/);
   assert.doesNotMatch(sections, /Sparkles|contact-orbit__glow/);
@@ -153,16 +153,21 @@ test("homepage uses the black-hole hero, places the globe in contact CTA, promot
 });
 
 test("homepage polish keeps the hero restrained, project previews single-framed, and skill labels separated", async () => {
-  const [home, skills, styles] = await Promise.all([
+  const [home, skills, styles, orbitStyles] = await Promise.all([
     readFile(new URL("../src/app/(frontend)/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../src/components/orbiting-skills.tsx", import.meta.url), "utf8"),
     readFile(new URL("../src/app/(frontend)/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/shadcn-space/orbiting-circles/orbiting-circles-02.css", import.meta.url), "utf8"),
   ]);
 
-  assert.match(styles, /\.hero--black-hole h1 \{[^}]*font-size: clamp\(3\.7rem, 8\.6vw, 8rem\)/);
+  assert.match(styles, /\.hero--black-hole h1 \{[^}]*font-size: clamp\(3\.5rem, 8\.2vw, 7\.6rem\)/);
   assert.doesNotMatch(styles, /\.project-preview::before/);
   assert.match(styles, /\.project-preview img \{ border: 0; box-shadow: none; \}/);
-  assert.match(skills, /outerOrbit \? "min\(32vw, 275px\)" : "min\(27vw, 190px\)"/);
+  assert.match(skills, /OrbitingCircles02/);
+  assert.match(skills, /https:\/\/svgl\.app\/library\/python\.svg/);
+  assert.match(skills, /src=\{skill\.logo\}/);
+  assert.match(orbitStyles, /@keyframes orbit-cw/);
+  assert.match(orbitStyles, /@keyframes orbit-ccw/);
   assert.doesNotMatch(styles, /--orbit: 35%/);
   assert.doesNotMatch(home, /Built with/);
 });
@@ -233,7 +238,10 @@ test("web manifest is valid and declares the existing favicon", async () => {
   const manifest = await response.json();
   assert.equal(manifest.name, "Laurent Maxhuni | Developer and product builder");
   assert.equal(manifest.start_url, "/");
-  assert.equal(manifest.icons[0].src, "/favicon.ico");
+  assert.equal(manifest.icons[0].src, "/icon.png");
+  const icon = await request("/icon.png");
+  assert.equal(icon.status, 200);
+  assert.match(icon.headers.get("content-type") ?? "", /^image\/png/);
 });
 
 test("Search Console verification has a documented build-time configuration path", async () => {

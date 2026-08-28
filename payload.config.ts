@@ -12,6 +12,25 @@ import { Posts } from "./src/collections/Posts.ts";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+function normalizedDatabaseURI(value: string | undefined) {
+  if (!value) return "";
+
+  try {
+    const databaseURL = new URL(value);
+    const sslMode = databaseURL.searchParams.get("sslmode");
+
+    // pg currently treats these as verify-full. Keep that secure behavior
+    // explicit before the driver changes its interpretation in a future major.
+    if (sslMode === "prefer" || sslMode === "require" || sslMode === "verify-ca") {
+      databaseURL.searchParams.set("sslmode", "verify-full");
+    }
+
+    return databaseURL.toString();
+  } catch {
+    return value;
+  }
+}
+
 export default buildConfig({
   admin: {
     importMap: {
@@ -23,7 +42,7 @@ export default buildConfig({
   db: postgresAdapter({
     migrationDir: path.resolve(dirname, "./src/migrations"),
     pool: {
-      connectionString: process.env.DATABASE_URI ?? "",
+      connectionString: normalizedDatabaseURI(process.env.DATABASE_URI),
     },
     push: process.env.NODE_ENV !== "production",
   }),
