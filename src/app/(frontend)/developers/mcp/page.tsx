@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 
 import StaticPage from "@/components/static-page";
 import { pageMetadata } from "@/lib/seo";
+import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "MCP server",
+  title: "Laurent Maxhuni MCP Server",
   description: "Streamable HTTP MCP server for public Laurent Maxhuni portfolio search and guidance.",
   pathname: "/developers/mcp",
 });
@@ -20,7 +21,7 @@ export default function McpDeveloperPage() {
         { href: "/developers/api", label: "Portfolio API" },
       ]}
     >
-      <p>Connect an MCP client to <code>https://laurentmaxhuni.vercel.app/.well-known/mcp</code> with the Streamable HTTP transport. The server speaks JSON-RPC 2.0 and supports MCP protocol version <code>2025-06-18</code>. It returns direct JSON responses, so it does not keep a server-sent-events stream open and correctly reports 405 for a GET request that asks to open one.</p>
+      <p>Connect an MCP client to <code>{absoluteUrl("/.well-known/mcp")}</code> with the Streamable HTTP transport. The server speaks JSON-RPC 2.0 and supports MCP protocol version <code>2025-06-18</code>. It returns direct JSON responses, so it does not keep a server-sent-events stream open and correctly reports 405 for a GET request that asks to open one.</p>
       <h2>Available tools</h2>
       <ul>
         <li><code>search_portfolio</code> searches public project names, summaries, descriptions, and technology tags.</li>

@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const title = `${post.title} | Notes`;
 
   return {
+    metadataBase: new URL(SITE_URL),
     title,
     description: post.excerpt,
     alternates: { canonical: pathname },

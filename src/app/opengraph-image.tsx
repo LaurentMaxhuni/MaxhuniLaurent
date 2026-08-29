@@ -1,8 +1,12 @@
 import { ImageResponse } from "next/og";
 
+import { SITE_URL } from "@/lib/site";
+
 export const alt = "Laurent Maxhuni — developer and product builder";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const siteHost = new URL(SITE_URL).host;
 
 export default function OpenGraphImage() {
   return new ImageResponse(
@@ -28,7 +32,7 @@ export default function OpenGraphImage() {
           <span style={{ fontSize: 92, lineHeight: 0.92, fontWeight: 700, letterSpacing: -5 }}>Laurent Maxhuni</span>
           <span style={{ marginTop: 28, color: "#b9c9d5", fontSize: 34, lineHeight: 1.35 }}>Web products, AI tools, browser extensions, and the work behind them.</span>
         </div>
-        <div style={{ display: "flex", color: "#9fcbe4", fontSize: 25 }}>laurentmaxhuni.vercel.app</div>
+        <div style={{ display: "flex", color: "#9fcbe4", fontSize: 25 }}>{siteHost}</div>
       </div>
     ),
     size,

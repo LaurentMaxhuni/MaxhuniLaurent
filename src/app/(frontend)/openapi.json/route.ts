@@ -1,4 +1,4 @@
-import { API_RATE_LIMIT, API_RATE_WINDOW_SECONDS, API_VERSION } from "@/lib/public-api";
+import { API_RATE_LIMIT, API_RATE_LIMIT_POLICY, API_RATE_WINDOW_SECONDS, API_VERSION, API_VERSIONING_PATH } from "@/lib/public-api";
 import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -20,9 +20,28 @@ const rateLimitHeaders = {
     description: "Combined IETF RateLimit policy and current quota state.",
     schema: { type: "string", example: `limit=${API_RATE_LIMIT}, remaining=${API_RATE_LIMIT - 1}, reset=${API_RATE_WINDOW_SECONDS}` },
   },
+  "RateLimit-Policy": {
+    description: "IETF quota policy expressed as a structured field: the default policy allows 60 requests in a 60-second window.",
+    schema: { type: "string", example: API_RATE_LIMIT_POLICY },
+  },
   "API-Version": {
     description: "The API version that produced this response.",
     schema: { type: "string", example: API_VERSION },
+  },
+  Link: {
+    description: "Link to the API versioning and deprecation policy using the RFC 9745 deprecation relation.",
+    schema: { type: "string", example: `<${absoluteUrl(API_VERSIONING_PATH)}>; rel=\"deprecation\"; type=\"text/html\"` },
+  },
+};
+
+const deprecationHeaders = {
+  Deprecation: {
+    description: "RFC 9745 structured date indicating when this resource is or will be deprecated. Sent only when scheduled.",
+    schema: { type: "string", pattern: "^@[0-9]+$", example: "@1798761600" },
+  },
+  Sunset: {
+    description: "RFC 8594 HTTP-date indicating when this resource is expected to become unavailable. Sent only when scheduled.",
+    schema: { type: "string", format: "http-date", example: "Sat, 31 Dec 2027 23:59:59 GMT" },
   },
 };
 
@@ -35,6 +54,7 @@ const problemResponse = (description: string, includeRetryAfter = false) => ({
   },
   headers: {
     ...rateLimitHeaders,
+    ...deprecationHeaders,
     ...(includeRetryAfter
       ? {
           "Retry-After": {
@@ -53,7 +73,7 @@ const postsResponse = {
       schema: { $ref: "#/components/schemas/PostsPage" },
     },
   },
-  headers: rateLimitHeaders,
+  headers: { ...rateLimitHeaders, ...deprecationHeaders },
 };
 
 const versionParameter = {
@@ -110,7 +130,7 @@ export function GET() {
       title: `${SITE_NAME} Portfolio API`,
       version: `v${API_VERSION}.0.0`,
       description:
-        `Read-only public API for published posts in Laurent Maxhuni's signal archive. The canonical endpoint is versioned at /api/v${API_VERSION}/posts. The unversioned /api/posts URL remains a compatibility alias. Responses use a typed RFC 9457-style application/problem+json error object with a machine-readable code and human-readable message. Rate limits are communicated with RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, and RateLimit headers; 429 responses also include Retry-After. Future endpoint deprecations use Deprecation: true and a Sunset HTTP-date, with a migration timeline published in the developer API guide.`,
+        `Read-only public API for published posts in Laurent Maxhuni's signal archive. The canonical endpoint is versioned at /api/v${API_VERSION}/posts. The unversioned /api/posts URL remains a compatibility alias. Responses use a typed RFC 9457-style application/problem+json error object with a machine-readable code and human-readable message. Rate limits are communicated with RateLimit-Policy, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, and RateLimit headers; 429 responses also include Retry-After. Future endpoint deprecations use the RFC 9745 Deprecation structured date and RFC 8594 Sunset HTTP-date, with a migration timeline published in the developer API guide.`,
       contact: {
         name: `${SITE_NAME} contact guidance`,
         url: absoluteUrl("/contact"),
@@ -200,8 +220,10 @@ export function GET() {
       canonicalPath: `/api/v${API_VERSION}/posts`,
       compatibilityAlias: "/api/posts",
       deprecationPolicy: {
-        signals: ["Deprecation", "Sunset"],
-        notice: "A deprecated endpoint will include Deprecation: true and a Sunset HTTP-date, with the migration timeline documented in the developer API guide.",
+        policyUrl: absoluteUrl(API_VERSIONING_PATH),
+        currentStatus: "No endpoint is currently scheduled for deprecation.",
+        signals: ["Deprecation", "Sunset", "Link; rel=deprecation"],
+        notice: "A scheduled endpoint will include Deprecation: @<unix-seconds> (RFC 9745), Sunset: <HTTP-date> (RFC 8594), and a Link header with rel=deprecation. The migration timeline is documented in the API versioning policy.",
       },
     },
   };

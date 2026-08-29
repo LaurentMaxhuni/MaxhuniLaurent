@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   const title = `${project.title} project`;
 
   return {
+    metadataBase: new URL(SITE_URL),
     title,
     description: project.summary,
     alternates: { canonical: pathname },

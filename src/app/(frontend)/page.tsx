@@ -4,10 +4,12 @@ import Link from "next/link";
 import HeroSection from "@/components/hero-section";
 import GooglePreferredSource from "@/components/google-preferred-source";
 import Navbar from "@/components/navbar";
+import AgentReadableSummary from "@/components/agent-readable-summary";
 import { AboutSection, ContactSection, PracticeSection, ProjectsSection } from "@/components/sections";
-import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_SAME_AS } from "@/lib/site";
+import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_SAME_AS, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Laurent Maxhuni | Developer and product builder",
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
@@ -79,6 +81,7 @@ export default function Home() {
         <AboutSection />
         <ContactSection />
         <GooglePreferredSource />
+        <AgentReadableSummary />
       </main>
       <footer className="site-footer">
         <div className="shell">

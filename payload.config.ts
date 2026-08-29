@@ -8,6 +8,7 @@ import { buildConfig } from "payload";
 import { Admins } from "./src/collections/Admins.ts";
 import { Media } from "./src/collections/Media.ts";
 import { Posts } from "./src/collections/Posts.ts";
+import { SITE_URL } from "./src/lib/site.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -56,5 +57,5 @@ export default buildConfig({
     }),
   ],
   secret: process.env.PAYLOAD_SECRET ?? "",
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000",
+  serverURL: SITE_URL,
 });

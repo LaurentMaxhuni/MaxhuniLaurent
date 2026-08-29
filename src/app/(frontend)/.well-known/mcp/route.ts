@@ -1,4 +1,5 @@
 import { MCP_PROTOCOL_VERSION, handleMcpMessage } from "@/lib/mcp";
+import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -7,7 +8,8 @@ function transportHeaders() {
   return {
     "MCP-Protocol-Version": MCP_PROTOCOL_VERSION,
     "Cache-Control": "no-store",
-    "Vary": "Accept, Origin",
+    "Vary": "Accept, Origin, MCP-Protocol-Version",
+    "Link": `<${absoluteUrl("/developers/mcp")}>; rel="describedby"; type="text/html"`,
   };
 }
 

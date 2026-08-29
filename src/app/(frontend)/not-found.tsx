@@ -3,8 +3,10 @@ import Link from "next/link";
 
 import Navbar from "@/components/navbar";
 import SiteFooter from "@/components/site-footer";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Page not found",
   description: "The requested page is not part of Laurent Maxhuni's public portfolio.",
   robots: { index: false, follow: false },

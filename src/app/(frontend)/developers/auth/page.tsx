@@ -4,7 +4,7 @@ import StaticPage from "@/components/static-page";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Authentication guide",
+  title: "Laurent Maxhuni Authentication Guide",
   description: "Authentication boundary for the public portfolio API and private administration area.",
   pathname: "/developers/auth",
 });

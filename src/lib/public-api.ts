@@ -4,6 +4,8 @@ import { absoluteUrl } from "./site";
 export const API_VERSION = "1";
 export const API_RATE_LIMIT = 60;
 export const API_RATE_WINDOW_SECONDS = 60;
+export const API_RATE_LIMIT_POLICY = `"default";q=${API_RATE_LIMIT};w=${API_RATE_WINDOW_SECONDS}`;
+export const API_VERSIONING_PATH = "/developers/api/versioning";
 
 type RateLimitState = {
   count: number;
@@ -66,7 +68,9 @@ function rateLimitHeaders(snapshot: RateLimitSnapshot, now = Date.now()) {
     "RateLimit-Remaining": String(snapshot.remaining),
     "RateLimit-Reset": String(reset),
     RateLimit: `limit=${snapshot.limit}, remaining=${snapshot.remaining}, reset=${reset}`,
+    "RateLimit-Policy": API_RATE_LIMIT_POLICY,
     "API-Version": API_VERSION,
+    Link: `<${absoluteUrl(API_VERSIONING_PATH)}>; rel="deprecation"; type="text/html"`,
   };
 }
 

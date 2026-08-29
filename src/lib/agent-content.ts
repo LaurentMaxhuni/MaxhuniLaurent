@@ -4,12 +4,14 @@ import { CORE_SITE_PATHS, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } f
 const developerResources = [
   ["Laurent Maxhuni developer portal", "/developers", "Human-readable integration and discovery guide."],
   ["Laurent Maxhuni API reference", "/developers/api", "Read-only, versioned REST API documentation."],
-  ["Versioned posts endpoint", "/api/v1/posts", "Canonical read-only JSON endpoint for published posts."],
-  ["OpenAPI document", "/openapi.json", "Machine-readable OpenAPI 3.1 description with typed schemas and errors."],
-  ["Authentication guide", "/developers/auth", "Public read access and admin authentication boundary."],
-  ["MCP server guide", "/developers/mcp", "Connect with Streamable HTTP at /.well-known/mcp."],
-  ["LLMs index", "/llms.txt", "Compact Markdown site index and agent usage guidance."],
-  ["XML sitemap", "/sitemap.xml", "Indexable URLs, including published blog posts."],
+  ["Laurent Maxhuni API versioning and deprecation policy", "/developers/api/versioning", "Stable URL versioning and runtime deprecation signals for API clients."],
+  ["Laurent Maxhuni versioned posts endpoint", "/api/v1/posts", "Canonical read-only JSON endpoint for published posts."],
+  ["Laurent Maxhuni OpenAPI document", "/openapi.json", "Machine-readable OpenAPI 3.1 description with typed schemas and errors."],
+  ["Laurent Maxhuni authentication guide", "/developers/auth", "Public read access and admin authentication boundary."],
+  ["Laurent Maxhuni MCP server guide", "/developers/mcp", "Connect with Streamable HTTP at /.well-known/mcp."],
+  ["Laurent Maxhuni MCP handshake endpoint", "/.well-known/mcp", "Live Streamable HTTP JSON-RPC endpoint for MCP clients."],
+  ["Laurent Maxhuni llms.txt index", "/llms.txt", "Compact Markdown site index and agent usage guidance."],
+  ["Laurent Maxhuni XML sitemap", "/sitemap.xml", "Indexable URLs, including published blog posts."],
 ] as const;
 
 function projectLines() {
@@ -99,9 +101,9 @@ The unversioned \`/api/posts\` URL remains a compatibility alias, but new integr
 
 ## Errors and rate limits
 
-All documented 4xx and 5xx responses use \`application/problem+json\` with \`type\`, \`title\`, \`status\`, stable machine-readable \`code\`, and human-readable \`message\` and \`detail\` fields. A client can branch on \`code\` without parsing prose. Every API response includes \`RateLimit-Limit\`, \`RateLimit-Remaining\`, \`RateLimit-Reset\`, and the combined IETF \`RateLimit\` header. A \`429\` response also includes \`Retry-After\`.
+All documented 4xx and 5xx responses use \`application/problem+json\` with \`type\`, \`title\`, \`status\`, stable machine-readable \`code\`, and human-readable \`message\` and \`detail\` fields. A client can branch on \`code\` without parsing prose. Every API response includes the IETF \`RateLimit-Policy\` and \`RateLimit\` fields plus the widely supported \`RateLimit-Limit\`, \`RateLimit-Remaining\`, and \`RateLimit-Reset\` fields. A \`429\` response also includes \`Retry-After\`.
 
-The current policy allows 60 requests per client per 60-second window. Future endpoint deprecations will send \`Deprecation: true\` and a \`Sunset\` HTTP-date, with the migration timeline published here before removal.
+The current policy allows 60 requests per client per 60-second window. Future endpoint deprecations will send an RFC 9745 \`Deprecation: @<unix-seconds>\` date and an RFC 8594 \`Sunset\` HTTP-date, with the migration timeline published in the [versioning policy](${absoluteUrl("/developers/api/versioning")}) before removal.
 
 For the formal request and response description, use [openapi.json](${absoluteUrl("/openapi.json")}). Use [the blog](${absoluteUrl("/blog")}) or its Markdown representation for presentation-focused reading.
 `;
@@ -113,6 +115,28 @@ export function authMarkdown() {
 Public portfolio pages, the public posts read endpoint, llms.txt, the XML sitemap, and the MCP server do not require authentication. Administrative functions are intentionally separated behind the private Payload CMS area at \`${absoluteUrl("/admin")}\`. Agents and integrations must not attempt to create, modify, or delete portfolio content through public endpoints.
 
 If a workflow needs access beyond the published public resources, begin through the verified contact channels rather than requesting or guessing credentials. This site does not offer self-service API keys, OAuth client registration, or a public account system.
+`;
+}
+
+export function versioningMarkdown() {
+  return `# ${SITE_NAME} API Versioning and Deprecation Policy
+
+This policy defines the stable API surface that agents and integrations can rely on. The public API is versioned in the URL path, and compatibility changes are announced before an endpoint is retired.
+
+## Current version
+
+- **v1:** [GET ${absoluteUrl("/api/v1/posts")}](${absoluteUrl("/api/v1/posts")}) is the canonical read-only endpoint for published posts.
+- **Compatibility alias:** [GET ${absoluteUrl("/api/posts")}](${absoluteUrl("/api/posts")}) currently serves the same v1 contract. New integrations should use the versioned path.
+
+## Deprecation signals
+
+When an endpoint is scheduled for retirement, its responses will include:
+
+- \`Deprecation: @<unix-seconds>\` using the RFC 9745 structured date value for when deprecation takes effect.
+- \`Sunset: <HTTP-date>\` using the RFC 8594 HTTP-date for when the resource is expected to become unavailable.
+- \`Link: <${absoluteUrl("/developers/api/versioning")}>; rel="deprecation"\` linking to this policy and the migration instructions.
+
+The endpoint remains operational during the published migration window. The replacement URL, deprecation date, sunset date, and any response-shape changes will be documented here before removal. No endpoint is currently scheduled for deprecation.
 `;
 }
 
@@ -196,6 +220,8 @@ export function markdownForPath(pathname: string) {
       return developersMarkdown();
     case "/developers/api":
       return apiMarkdown();
+    case "/developers/api/versioning":
+      return versioningMarkdown();
     case "/developers/auth":
       return authMarkdown();
     case "/developers/mcp":

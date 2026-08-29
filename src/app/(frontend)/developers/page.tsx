@@ -6,7 +6,7 @@ import { developersMarkdown } from "@/lib/agent-content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Developer resources",
+  title: "Laurent Maxhuni Developer Resources",
   description: "Vercel-hosted developer portal for Laurent Maxhuni's public portfolio, API, Markdown representations, and MCP server.",
   pathname: "/developers",
 });
@@ -30,6 +30,7 @@ export default function DevelopersPage() {
         <li><a href="/llms.txt">llms.txt</a> provides the concise site index and agent usage guidance.</li>
         <li><a href="/openapi.json">openapi.json</a> describes the versioned read-only published-posts endpoint, typed errors, and rate-limit headers.</li>
         <li><Link href="/api/v1/posts"><code>/api/v1/posts</code></Link> is the canonical versioned JSON endpoint for published posts.</li>
+        <li><Link href="/developers/api/versioning">API versioning and deprecation policy</Link> documents the stable version and RFC 9745/RFC 8594 retirement signals.</li>
         <li><Link href="/.well-known/mcp">/.well-known/mcp</Link> is the live Streamable HTTP MCP endpoint.</li>
         <li><a href="/sitemap.xml">sitemap.xml</a> lists indexable public URLs.</li>
       </ul>

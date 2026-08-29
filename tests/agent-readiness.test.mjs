@@ -5,7 +5,13 @@ import { readFile } from "node:fs/promises";
 
 const port = 3417;
 const baseUrl = `http://127.0.0.1:${port}`;
+let expectedSiteUrl;
+let escapedExpectedSiteUrl;
 let server;
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 async function waitForServer() {
   const deadline = Date.now() + 45_000;
@@ -33,12 +39,19 @@ before(async () => {
     cwd: process.cwd(),
     env: {
       ...process.env,
-      NEXT_PUBLIC_SERVER_URL: baseUrl,
+      NEXT_PUBLIC_SITE_URL: expectedSiteUrl,
       GOOGLE_SITE_VERIFICATION: "test-search-console-token",
     },
     stdio: "ignore",
   });
   await waitForServer();
+
+  const homepage = await request("/", { headers: { Accept: "text/html" } });
+  const homepageHtml = await homepage.text();
+  const canonicalUrl = homepageHtml.match(/<link rel="canonical" href="([^"]+)"/i)?.[1];
+  assert.ok(canonicalUrl, "homepage canonical URL");
+  expectedSiteUrl = new URL(canonicalUrl).origin;
+  escapedExpectedSiteUrl = escapeRegExp(expectedSiteUrl);
 });
 
 after(() => {
@@ -81,6 +94,11 @@ test("Markdown alternates and 404 responses give agents a recovery path", async 
   assert.equal(markdown404.status, 404);
   assert.match(markdown404.headers.get("content-type") ?? "", /^text\/markdown/);
   assert.match(await markdown404.text(), /## Where to look next/);
+
+  const versioningMarkdown = await request("/developers/api/versioning.md", { headers: { Accept: "text/html" } });
+  assert.equal(versioningMarkdown.status, 200);
+  assert.match(versioningMarkdown.headers.get("content-type") ?? "", /^text\/markdown/);
+  assert.match(await versioningMarkdown.text(), /# Laurent Maxhuni API Versioning and Deprecation Policy/);
 });
 
 test("agent discovery files and developer resources are public and well formed", async () => {
@@ -92,16 +110,19 @@ test("agent discovery files and developer resources are public and well formed",
   assert.match(llmsBody, /\/developers/);
   assert.match(llmsBody, /\/api\/v1\/posts/);
   assert.match(llmsBody, /\/openapi\.json/);
+  assert.match(llmsBody, /\/developers\/api\/versioning/);
+  assert.match(llmsBody, /Laurent Maxhuni OpenAPI document/);
+  assert.match(llmsBody, /Laurent Maxhuni MCP handshake endpoint/);
   assert.match(llmsBody, /\.well-known\/mcp/);
 
   const sitemap = await request("/sitemap.xml");
   assert.equal(sitemap.status, 200);
   assert.match(sitemap.headers.get("content-type") ?? "", /application\/xml|text\/xml/);
   const sitemapBody = await sitemap.text();
-  assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/developers/);
-  assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/projects\/promptify/);
-  assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/llms\.txt/);
-  assert.match(sitemapBody, /https:\/\/laurentmaxhuni\.vercel\.app\/openapi\.json/);
+  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/developers`));
+  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/projects/promptify`));
+  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/llms\\.txt`));
+  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/openapi\\.json`));
 
   const sitemapUrls = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
   for (const pathname of sitemapUrls) {
@@ -113,7 +134,7 @@ test("agent discovery files and developer resources are public and well formed",
   assert.equal(robots.status, 200);
   assert.match(robots.headers.get("content-type") ?? "", /^text\/plain/);
   const robotsBody = await robots.text();
-  assert.match(robotsBody, /Sitemap: https:\/\/laurentmaxhuni\.vercel\.app\/sitemap\.xml/);
+  assert.match(robotsBody, new RegExp(`Sitemap: ${escapedExpectedSiteUrl}/sitemap\\.xml`));
   assert.doesNotMatch(robotsBody, /Disallow: \/api\//);
 
   const openapi = await request("/openapi.json");
@@ -131,12 +152,39 @@ test("agent discovery files and developer resources are public and well formed",
     assert.equal(document.paths["/api/v1/posts"].get.responses[status].content["application/problem+json"].schema.$ref, "#/components/schemas/ProblemDetails");
   }
   assert.equal(document.paths["/api/v1/posts"].get.responses["429"].headers["Retry-After"].schema.type, "integer");
+  assert.ok(document.paths["/api/v1/posts"].get.responses["200"].headers["RateLimit-Policy"]);
+  assert.ok(document.paths["/api/v1/posts"].get.responses["200"].headers.Deprecation);
+  assert.ok(document.paths["/api/v1/posts"].get.responses["200"].headers.Sunset);
   assert.match(JSON.stringify(document), /Deprecation|Sunset/);
   assert.equal(document["x-api-versioning"].canonicalPath, "/api/v1/posts");
+  assert.equal(document["x-api-versioning"].deprecationPolicy.policyUrl, `${expectedSiteUrl}/developers/api/versioning`);
 
-  for (const path of ["/developers", "/developers/api", "/developers/auth", "/developers/mcp"]) {
+  for (const path of ["/developers", "/developers/api", "/developers/api/versioning", "/developers/auth", "/developers/mcp"]) {
     const response = await request(path);
     assert.equal(response.status, 200, path);
+  }
+});
+
+test("public Markdown alternates cover the homepage and developer resources", async () => {
+  const paths = [
+    "/index.md",
+    "/about.md",
+    "/contact.md",
+    "/privacy.md",
+    "/blog.md",
+    "/developers.md",
+    "/developers/api.md",
+    "/developers/api/versioning.md",
+    "/developers/auth.md",
+    "/developers/mcp.md",
+    "/projects/promptify.md",
+  ];
+
+  for (const pathname of paths) {
+    const response = await request(pathname, { headers: { Accept: "text/html" } });
+    assert.equal(response.status, 200, pathname);
+    assert.match(response.headers.get("content-type") ?? "", /^text\/markdown/, pathname);
+    assert.match(await response.text(), /^# /, pathname);
   }
 });
 
@@ -156,6 +204,8 @@ test("homepage has meaningful server-rendered content without JavaScript", async
 
   assert.equal(response.status, 200);
   assert.match(html, /<h1[^>]*>Ideas deserve their own orbit\.<\/h1>/);
+  assert.match(html, /Laurent Maxhuni developer portfolio/);
+  assert.match(html, /href="\/developers\/api\/versioning"/);
   assert.ok(contentOnly.length >= 500, `homepage text was only ${contentOnly.length} characters`);
   assert.ok(headings.includes(1));
   assert.ok(headings.filter((level) => level === 2).length >= 3);
@@ -171,6 +221,8 @@ test("versioned posts API returns typed errors and rate-limit metadata", async (
   assert.match(response.headers.get("ratelimit-remaining") ?? "", /^\d+$/);
   assert.match(response.headers.get("ratelimit-reset") ?? "", /^\d+$/);
   assert.match(response.headers.get("ratelimit") ?? "", /limit=60/);
+  assert.equal(response.headers.get("ratelimit-policy"), '"default";q=60;w=60');
+  assert.match(response.headers.get("link") ?? "", /rel="deprecation"/);
 
   if (response.status === 200) {
     const body = await response.json();
@@ -210,6 +262,8 @@ test("API rate limiting returns Retry-After when the quota is exceeded", async (
   assert.equal(limited.status, 429);
   assert.match(limited.headers.get("content-type") ?? "", /^application\/problem\+json/);
   assert.equal(limited.headers.get("ratelimit-remaining"), "0");
+  assert.equal(limited.headers.get("ratelimit-policy"), '"default";q=60;w=60');
+  assert.match(limited.headers.get("link") ?? "", /rel="deprecation"/);
   assert.match(limited.headers.get("retry-after") ?? "", /^\d+$/);
   const problem = await limited.json();
   assert.equal(problem.code, "rate_limit_exceeded");
@@ -218,7 +272,7 @@ test("API rate limiting returns Retry-After when the quota is exceeded", async (
 test("homepage exposes canonical, Open Graph, and JSON-LD identity data", async () => {
   const response = await request("/", { headers: { Accept: "text/html" } });
   const html = await response.text();
-  assert.match(html, /rel="canonical" href="https:\/\/laurentmaxhuni\.vercel\.app/);
+  assert.match(html, new RegExp(`rel="canonical" href="${escapedExpectedSiteUrl}`));
   assert.match(html, /property="og:type" content="website"/);
   assert.match(html, /property="og:image"/);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
@@ -230,6 +284,8 @@ test("homepage exposes canonical, Open Graph, and JSON-LD identity data", async 
   assert.match(html, /"@type":"Organization"/);
   assert.match(html, /"@type":"WebSite"/);
   assert.match(html, /"@type":"PostalAddress"/);
+  assert.match(html, new RegExp(`"@id":"${escapedExpectedSiteUrl}/#person"`));
+  assert.match(html, new RegExp(`"@id":"${escapedExpectedSiteUrl}/#website"`));
 });
 
 test("homepage uses the black-hole hero, places the globe in contact CTA, promotes ideator.dev, and contains no sparkle treatment", async () => {
@@ -297,7 +353,7 @@ test("ideator.dev points to its live workbench and uses its live-site capture", 
 
 test("important public pages have one canonical URL and complete social metadata", async () => {
   const paths = [
-    "/", "/about", "/contact", "/privacy", "/blog", "/developers", "/developers/api", "/developers/auth", "/developers/mcp",
+    "/", "/about", "/contact", "/privacy", "/blog", "/developers", "/developers/api", "/developers/api/versioning", "/developers/auth", "/developers/mcp",
     "/projects/promptify", "/projects/ideator-dev",
   ];
   const titles = new Set();
@@ -311,6 +367,7 @@ test("important public pages have one canonical URL and complete social metadata
     assert.ok(title, `${path} title`);
     assert.ok(!titles.has(title), `${path} has a unique title`);
     titles.add(title);
+    if (path.startsWith("/developers")) assert.match(title, /Laurent Maxhuni/);
     assert.equal((html.match(/rel="canonical"/g) ?? []).length, 1, `${path} canonical count`);
     assert.match(html, /property="og:title"/);
     assert.match(html, /property="og:description"/);
@@ -354,11 +411,20 @@ test("web manifest is valid and declares the existing favicon", async () => {
 });
 
 test("Search Console verification has a documented build-time configuration path", async () => {
-  const [layout, envExample] = await Promise.all([
+  const [layout, envExample, siteConfig, payloadConfig] = await Promise.all([
     readFile(new URL("../src/app/(frontend)/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../.env.example", import.meta.url), "utf8"),
+    readFile(new URL("../src/lib/site.ts", import.meta.url), "utf8"),
+    readFile(new URL("../payload.config.ts", import.meta.url), "utf8"),
   ]);
   assert.match(layout, /process\.env\.GOOGLE_SITE_VERIFICATION/);
+  const configuredSiteUrl = envExample.match(/^NEXT_PUBLIC_SITE_URL=(.+)$/m)?.[1];
+  assert.ok(configuredSiteUrl, "canonical site URL in .env.example");
+  assert.equal(new URL(configuredSiteUrl).origin, configuredSiteUrl);
+  assert.match(siteConfig, new RegExp(escapeRegExp(configuredSiteUrl)));
+  assert.doesNotMatch(envExample, /NEXT_PUBLIC_SERVER_URL/);
+  assert.match(siteConfig, /process\.env\.NEXT_PUBLIC_SITE_URL/);
+  assert.match(payloadConfig, /serverURL: SITE_URL/);
   assert.match(envExample, /^GOOGLE_SITE_VERIFICATION=your-google-search-console-token$/m);
 });
 
@@ -397,6 +463,8 @@ test("MCP endpoint completes initialization, discovery, tools, and compliant GET
   assert.equal(initialize.status, 200);
   assert.match(initialize.headers.get("content-type") ?? "", /^application\/json/);
   assert.equal(initialize.headers.get("mcp-protocol-version"), "2025-06-18");
+  assert.match(initialize.headers.get("link") ?? "", /\/developers\/mcp/);
+  assert.match(initialize.headers.get("vary") ?? "", /mcp-protocol-version/i);
   const initialized = await initialize.json();
   assert.equal(initialized.result.serverInfo.name, "laurent-maxhuni-portfolio");
 
