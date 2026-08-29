@@ -6,10 +6,11 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import JsonLd from "@/components/json-ld";
 import Navbar from "@/components/navbar";
 import SiteFooter from "@/components/site-footer";
 import { formatPublicationDate, getPostCover, getPostTags, getPublishedPost, getReadingTime } from "@/lib/blog";
-import { absoluteUrl, SITE_NAME, SITE_OG_IMAGE, SITE_URL } from "@/lib/site";
+import { absoluteUrl, PERSON_ID, PORTFOLIO_ID, SITE_NAME, SITE_OG_IMAGE, SITE_ROOT_URL, SITE_URL, WEBSITE_ID } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -28,29 +29,32 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const image = cover?.url ?? SITE_OG_IMAGE;
   const pathname = `/blog/${post.slug}`;
   const title = `${post.title} | Notes`;
+  const canonicalUrl = absoluteUrl(pathname);
+  const imageUrl = image.startsWith("http") ? image : absoluteUrl(image);
 
   return {
     metadataBase: new URL(SITE_URL),
     title,
     description: post.excerpt,
     alternates: { canonical: pathname },
-    authors: [{ name: SITE_NAME, url: absoluteUrl("/") }],
+    authors: [{ name: SITE_NAME, url: SITE_ROOT_URL }],
     openGraph: {
       type: "article",
-      url: pathname,
+      siteName: SITE_NAME,
+      url: canonicalUrl,
       title: `${title} | ${SITE_NAME}`,
       description: post.excerpt,
       publishedTime: post.publishedAt ?? post.createdAt,
       modifiedTime: post.updatedAt,
       authors: [SITE_NAME],
       tags: getPostTags(post),
-      images: [{ url: image, alt: cover?.alt ?? `${post.title} article cover` }],
+      images: [{ url: imageUrl, alt: cover?.alt ?? `${post.title} article cover` }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${title} | ${SITE_NAME}`,
       description: post.excerpt,
-      images: [image],
+      images: [imageUrl],
     },
   };
 }
@@ -64,7 +68,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const tags = getPostTags(post);
   const publicationDate = post.publishedAt ?? post.createdAt;
   const canonicalUrl = absoluteUrl(`/blog/${post.slug}`);
-  const imageUrl = new URL(cover?.url ?? SITE_OG_IMAGE, SITE_URL).toString();
+  const imageUrl = (cover?.url ?? SITE_OG_IMAGE).startsWith("http")
+    ? cover?.url ?? SITE_OG_IMAGE
+    : absoluteUrl(cover?.url ?? SITE_OG_IMAGE);
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -78,9 +84,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         datePublished: publicationDate,
         dateModified: post.updatedAt,
         image: [imageUrl],
-        author: { "@id": `${absoluteUrl("/")}#person` },
-        publisher: { "@id": `${absoluteUrl("/")}#organization` },
-        isPartOf: { "@id": `${absoluteUrl("/")}#website` },
+        author: { "@id": PERSON_ID },
+        publisher: { "@id": PORTFOLIO_ID },
+        isPartOf: { "@id": WEBSITE_ID },
         inLanguage: "en",
         ...(tags.length > 0 ? { keywords: tags.join(", ") } : {}),
       },
@@ -88,7 +94,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         "@type": "BreadcrumbList",
         "@id": `${canonicalUrl}#breadcrumb`,
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_ROOT_URL },
           { "@type": "ListItem", position: 2, name: "Notes", item: absoluteUrl("/blog") },
           { "@type": "ListItem", position: 3, name: post.title, item: canonicalUrl },
         ],
@@ -134,7 +140,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </article>
       </main>
       <SiteFooter />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <JsonLd data={jsonLd} />
     </>
   );
 }

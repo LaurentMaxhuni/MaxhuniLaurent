@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
-import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_URL } from "@/lib/site";
+import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_ROOT_URL, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const googleSiteVerification =
@@ -22,11 +22,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
   title: {
-    default: "Laurent Maxhuni | Developer and product builder",
-    template: "%s | Laurent Maxhuni",
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
-  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  authors: [{ name: SITE_NAME, url: SITE_ROOT_URL }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
   robots: {
@@ -50,14 +50,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: "Laurent Maxhuni | Developer and product builder",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    url: "/",
-    images: [{ url: absoluteUrl(SITE_OG_IMAGE), width: 1200, height: 630, alt: "Laurent Maxhuni developer and product builder" }],
+    url: SITE_URL,
+    images: [{ url: absoluteUrl(SITE_OG_IMAGE), width: 1200, height: 630, alt: SITE_TITLE }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Laurent Maxhuni | Developer and product builder",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     images: [absoluteUrl(SITE_OG_IMAGE)],
   },

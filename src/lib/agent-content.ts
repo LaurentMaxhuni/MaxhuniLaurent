@@ -1,5 +1,5 @@
 import { capabilities, getProjectBySlug, projects, site } from "../content/portfolio";
-import { CORE_SITE_PATHS, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
+import { INDEXABLE_SITE_PATHS, PERSON, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
 
 const developerResources = [
   ["Laurent Maxhuni developer portal", "/developers", "Human-readable integration and discovery guide."],
@@ -18,13 +18,13 @@ function projectLines() {
   return projects
     .map((project) => {
       const links = project.links.map((link) => `[${link.label}](${link.href})`).join(" · ");
-      return `- **${project.title}** — ${project.summary} Tags: ${project.tags.join(", ")}. ${links}`;
+      return `- [**${project.title}**](${absoluteUrl(`/projects/${project.id}`)}) — ${project.summary} Tags: ${project.tags.join(", ")}. ${links}`;
     })
     .join("\n");
 }
 
 export const aboutCopy = [
-  "Laurent Maxhuni is a developer and product builder based in Vushtrri, Kosovo. This portfolio documents the work he builds and studies: focused interfaces, AI-assisted tools, browser extensions, and experiments that turn technical ideas into something people can use. His work connects frontend development, backend thinking, product design, and the details needed to ship a product.",
+  `${PERSON.name} is a ${PERSON.role} from ${PERSON.location}. His work spans web applications, AI products, developer tools, browser extensions, open-source software, and experimental projects that turn technical ideas into something people can use. As a student developer, he connects frontend development, backend thinking, product design, and the details needed to ship a product.`,
   "The project index links to live products and public repositories so visitors can inspect the work instead of taking a claim at face value. Laurent also publishes notes on products, interfaces, experiments, and the decisions behind them. Mathematics and physics inform his approach, with an emphasis on clear reasoning, careful iteration, and useful outcomes.",
 ].join("\n\n");
 
@@ -44,7 +44,9 @@ export function homepageMarkdown() {
 
 > ${SITE_DESCRIPTION}
 
-${site.role} based in ${site.location}. Laurent builds web products, AI tools, and browser extensions with clear frontend execution and practical product thinking.
+${PERSON.description}
+
+Laurent builds web applications, AI products, developer tools, browser extensions, and open-source software with clear frontend execution and practical product thinking.
 
 ## When to use this portfolio
 
@@ -232,4 +234,4 @@ export function markdownForPath(pathname: string) {
   }
 }
 
-export { CORE_SITE_PATHS, developerResources };
+export { INDEXABLE_SITE_PATHS, developerResources };

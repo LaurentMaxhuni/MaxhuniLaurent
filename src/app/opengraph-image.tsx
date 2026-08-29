@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 import { SITE_URL } from "@/lib/site";
 
-export const alt = "Laurent Maxhuni — developer and product builder";
+export const alt = "Laurent Maxhuni — Full-Stack Developer & AI Builder";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -26,11 +26,11 @@ export default function OpenGraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "18px", color: "#bcd9ea", fontSize: 28, letterSpacing: 4 }}>
           <span style={{ display: "flex", width: 58, height: 58, alignItems: "center", justifyContent: "center", borderRadius: 29, background: "#183044", color: "#e6f6ff", fontSize: 20, fontWeight: 700 }}>LM</span>
-          DEVELOPER AND PRODUCT BUILDER
+          FULL-STACK DEVELOPER & AI BUILDER
         </div>
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 960 }}>
           <span style={{ fontSize: 92, lineHeight: 0.92, fontWeight: 700, letterSpacing: -5 }}>Laurent Maxhuni</span>
-          <span style={{ marginTop: 28, color: "#b9c9d5", fontSize: 34, lineHeight: 1.35 }}>Web products, AI tools, browser extensions, and the work behind them.</span>
+          <span style={{ marginTop: 28, color: "#b9c9d5", fontSize: 34, lineHeight: 1.35 }}>Web products, AI software, developer tools, and browser extensions.</span>
         </div>
         <div style={{ display: "flex", color: "#9fcbe4", fontSize: 25 }}>{siteHost}</div>
       </div>

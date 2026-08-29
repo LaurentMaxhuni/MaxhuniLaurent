@@ -52,6 +52,9 @@ function SkillMark({ skill }: { skill: Skill }) {
         aria-hidden="true"
         width="32"
         height="32"
+        loading="lazy"
+        decoding="async"
+        fetchPriority="low"
         draggable="false"
         style={skill.label === "Rust" ? { filter: "grayscale(1) brightness(0) invert(1)" } : undefined}
       />

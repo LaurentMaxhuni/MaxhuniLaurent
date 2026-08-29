@@ -6,6 +6,7 @@ import RepositoryArchive from "@/components/repository-archive";
 import Reveal from "@/components/reveal";
 import GlobeStudy from "@/components/ui/globe-study";
 import { awards, credibilityNotes, projects, site, type Project } from "@/content/portfolio";
+import { PERSON } from "@/lib/site";
 
 function ProjectMarqueeCard({ project, duplicate = false }: { project: Project; duplicate?: boolean }) {
   const asset = project.screenshots[0] ?? project.artwork;
@@ -85,7 +86,7 @@ export function PracticeSection() {
         <Reveal className="section-intro">
           <p className="section-kicker"><Orbit aria-hidden="true" size={16} /> Technical range</p>
           <h2 id="practice-title">A broad stack with a consistent approach.</h2>
-          <p className="practice-section__intro-note">Explore the tools behind the interfaces, products, and AI systems I build.</p>
+          <p className="practice-section__intro-note">I work with TypeScript, React, Next.js, Node.js, Python, PostgreSQL, and AI/LLM APIs to build useful interfaces, products, and developer tools.</p>
         </Reveal>
         <Reveal className="practice-orbit">
           <OrbitingSkills />
@@ -114,13 +115,12 @@ export function AboutSection() {
         <Reveal className="about-card">
           <p className="section-kicker">About Laurent</p>
           <h2 id="about-title">A developer who builds and publishes.</h2>
-          <p>
-            Laurent Maxhuni is a developer and product builder from Vushtrri, Kosovo. His work spans frontend development, AI tools, browser extensions, and experiments.
-          </p>
-          <a className="round-link round-link--light" href="#contact">Get in touch <ArrowUpRight aria-hidden="true" size={17} /></a>
+          <p>{PERSON.description}</p>
+          <Link className="round-link round-link--light" href="/about">About Laurent Maxhuni <ArrowUpRight aria-hidden="true" size={17} /></Link>
         </Reveal>
         <Reveal className="awards-card">
           <p className="section-kicker">Competition record</p>
+          <h3>Reasoning under pressure.</h3>
           <ul>
             {awards.map((award) => (
               <li key={`${award.year}-${award.title}`}>

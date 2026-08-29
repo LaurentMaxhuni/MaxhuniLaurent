@@ -62,6 +62,10 @@ The homepage uses Google Search's official Preferred Sources publisher button wi
 
 `NEXT_PUBLIC_SITE_URL` is the single canonical origin for metadata, structured data, sitemap entries, robots.txt, feeds, API documentation, and absolute internal URLs. The checked-in `.env.example` contains the current production value. `src/lib/site.ts` normalizes and validates it; update the environment variable and redeploy when the authoritative origin changes. Do not add domain literals to page content, metadata, structured data, or route handlers.
 
+`/about` is the canonical profile page for Laurent Maxhuni. The portfolio uses one stable Person identifier, `${NEXT_PUBLIC_SITE_URL}/#person`, across the homepage, profile page, projects, and blog structured data. The identity graph describes Laurent as a 15-year-old full-stack developer and AI builder from Vushtrri, Kosovo; it intentionally does not publish a birth date.
+
+Vercel preview deployments receive `X-Robots-Tag: noindex, nofollow, noarchive` and production remains canonical. Keep `NEXT_PUBLIC_SITE_URL` set to `https://laurentmaxhuni.vercel.app` until a custom domain is live.
+
 Until a custom domain is connected and live, the Vercel production origin remains authoritative. A future migration should be handled in this order:
 
 1. Update `NEXT_PUBLIC_SITE_URL` in the deployment environment.

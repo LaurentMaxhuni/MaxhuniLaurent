@@ -17,7 +17,11 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const getHref = (href: string) => (href.startsWith("#") && pathname !== "/" ? `/${href}` : href);
+  const getHref = (href: string) => {
+    if (pathname !== "/" && href === "#about") return "/about";
+    if (pathname !== "/" && href === "#contact") return "/contact";
+    return href.startsWith("#") && pathname !== "/" ? `/${href}` : href;
+  };
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -51,7 +55,13 @@ export default function Navbar() {
             <a
               key={link.href}
               href={getHref(link.href)}
-              aria-current={link.href === "/blog" && pathname.startsWith("/blog") ? "page" : undefined}
+              aria-current={
+                (link.href === "/blog" && pathname.startsWith("/blog")) ||
+                (link.href === "#about" && pathname === "/about") ||
+                (link.href === "#contact" && pathname === "/contact")
+                  ? "page"
+                  : undefined
+              }
               onClick={() => setOpen(false)}
             >
               {link.label}

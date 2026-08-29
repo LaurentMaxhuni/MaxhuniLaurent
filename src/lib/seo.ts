@@ -7,6 +7,8 @@ type PageMetadataOptions = {
   description: string;
   pathname: string;
   openGraphType?: "article" | "website";
+  image?: string;
+  imageAlt?: string;
 };
 
 export function pageMetadata({
@@ -14,26 +16,31 @@ export function pageMetadata({
   description,
   pathname,
   openGraphType = "website",
+  image = SITE_OG_IMAGE,
+  imageAlt = `${SITE_NAME} portfolio`,
 }: PageMetadataOptions): Metadata {
   const pageTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+  const canonicalUrl = absoluteUrl(pathname);
+  const imageUrl = image.startsWith("http") ? image : absoluteUrl(image);
 
   return {
     metadataBase: new URL(SITE_URL),
     title: { absolute: pageTitle },
     description,
-    alternates: { canonical: pathname },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       type: openGraphType,
-      url: pathname,
+      siteName: SITE_NAME,
+      url: canonicalUrl,
       title: pageTitle,
       description,
-      images: [{ url: absoluteUrl(SITE_OG_IMAGE), width: 1200, height: 630, alt: `${SITE_NAME} portfolio` }],
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: imageAlt }],
     },
     twitter: {
       card: "summary_large_image",
       title: pageTitle,
       description,
-      images: [absoluteUrl(SITE_OG_IMAGE)],
+      images: [imageUrl],
     },
   };
 }

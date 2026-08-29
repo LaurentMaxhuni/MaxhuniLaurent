@@ -1,3 +1,5 @@
+import { PERSON, SITE_NAME, SITE_SAME_AS } from "@/lib/site";
+
 export type ProjectLink = {
   label: string;
   href: string;
@@ -16,6 +18,7 @@ export type ProjectArtwork = {
 export type Project = {
   id: string;
   title: string;
+  seoTitle: string;
   kind: "product" | "repository";
   summary: string;
   description: string;
@@ -32,13 +35,13 @@ export type Project = {
 // LaurentMaxhuni's public GitHub profile and live product sites on August 23, 2026.
 // Screenshots are real captures of each live product or repository page.
 export const site = {
-  name: "Laurent Maxhuni",
-  role: "Developer and product builder",
-  location: "Vushtrri, Kosovo",
+  name: SITE_NAME,
+  role: PERSON.role,
+  location: PERSON.location,
   contactEmail: null as string | null,
   socials: [
-    { label: "GitHub", href: "https://github.com/LaurentMaxhuni" },
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/laurent-maxhuni-56a394304/" },
+    { label: "GitHub", href: SITE_SAME_AS[0] },
+    { label: "LinkedIn", href: SITE_SAME_AS[1] },
     { label: "Blog", href: "/blog" },
   ],
 };
@@ -47,6 +50,7 @@ export const projects: Project[] = [
   {
     id: "promptify",
     title: "Promptify",
+    seoTitle: "AI Prompt Browser Extension",
     kind: "product",
     summary:
       "Chrome extension that improves prompts with one click in ChatGPT, Claude, Gemini, and Grok.",
@@ -72,6 +76,7 @@ export const projects: Project[] = [
   {
     id: "vuent-ai",
     title: "Vuent.ai",
+    seoTitle: "AI Product Concept",
     kind: "product",
     summary:
       "AI application concept with separate chat, code, and design modes.",
@@ -94,6 +99,7 @@ export const projects: Project[] = [
   {
     id: "free-ai",
     title: "free-ai",
+    seoTitle: "AI Chat and Image Generation",
     kind: "product",
     summary:
       "Free AI chat and image generation with multiple models, Flux image generation, and no credit card required.",
@@ -119,6 +125,7 @@ export const projects: Project[] = [
   {
     id: "agent-skills",
     title: "agent-skills",
+    seoTitle: "Open-Source Agent Workflows",
     kind: "repository",
     summary:
       "Reusable agent workflows for frontend audits, accessibility passes, bug hunts, refactors, and more.",
@@ -141,6 +148,7 @@ export const projects: Project[] = [
   {
     id: "allofos",
     title: "AllOfOS",
+    seoTitle: "Open-Source OS Download Index",
     kind: "repository",
     summary:
       "An index of official operating-system download links for Windows, Linux distributions, and specialized systems.",
@@ -163,6 +171,7 @@ export const projects: Project[] = [
   {
     id: "easeyourstartup",
     title: "easeyourstartup",
+    seoTitle: "Launch-Campaign SaaS",
     kind: "repository",
     summary:
       "Launch-campaign software for solo founders that scans a product site, builds an editable Brand DNA profile, and generates copy for each channel.",
@@ -185,6 +194,7 @@ export const projects: Project[] = [
   {
     id: "fscan",
     title: "fscan",
+    seoTitle: "Python Scanning Utility",
     kind: "repository",
     summary:
       "A Python scanning utility under active development, with source and commit history on GitHub.",
@@ -207,6 +217,7 @@ export const projects: Project[] = [
   {
     id: "parley",
     title: "parley",
+    seoTitle: "Freelance Pricing Advisor",
     kind: "product",
     summary:
       "A pricing advisor for freelancers and small businesses that helps set rates and draft counteroffers when clients push back.",
@@ -232,6 +243,7 @@ export const projects: Project[] = [
   {
     id: "simplycutouts",
     title: "simplycutouts",
+    seoTitle: "Private Browser Background Removal",
     kind: "product",
     summary:
       "Browser-based background removal that keeps images on your device.",
@@ -257,6 +269,7 @@ export const projects: Project[] = [
   {
     id: "scholaris",
     title: "scholaris",
+    seoTitle: "AI Study Assistant",
     kind: "repository",
     summary:
       "A desktop study assistant that OCRs PDFs and generates AI summaries, answers, and quizzes with markdown and LaTeX previews.",
@@ -279,6 +292,7 @@ export const projects: Project[] = [
   {
     id: "ideator-dev",
     title: "ideator.dev",
+    seoTitle: "Product Discovery Workbench",
     kind: "product",
     summary:
       "A product-discovery workbench for turning a person, recurring tension, and sharp constraint into a testable direction.",

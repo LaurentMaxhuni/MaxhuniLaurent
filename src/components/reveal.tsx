@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type RevealProps = {
   children: React.ReactNode;
@@ -9,18 +9,22 @@ type RevealProps = {
 
 export default function Reveal({ children, className = "" }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+
+    node.classList.add("reveal--pending");
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setReady(true);
+          node.classList.remove("reveal--pending");
+          node.classList.add("reveal--ready");
           observer.disconnect();
         }
       },
@@ -32,7 +36,7 @@ export default function Reveal({ children, className = "" }: RevealProps) {
   }, []);
 
   return (
-    <div ref={ref} className={`reveal ${ready ? "reveal--ready" : ""} ${className}`}>
+    <div ref={ref} className={`reveal ${className}`}>
       {children}
     </div>
   );
