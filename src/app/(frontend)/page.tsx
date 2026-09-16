@@ -36,7 +36,7 @@ const jsonLd = {
       "@id": `${absoluteUrl("/")}#person`,
       name: SITE_NAME,
       url: absoluteUrl("/"),
-      description: "Developer and product builder working across frontend development, AI tools, and browser extensions.",
+      description: "I build across frontend development, AI tools, and browser extensions.",
       jobTitle: "Developer and product builder",
       homeLocation: { "@type": "Place", name: "Vushtrri, Kosovo" },
       sameAs: SITE_SAME_AS,
@@ -46,7 +46,7 @@ const jsonLd = {
       "@id": `${absoluteUrl("/")}#organization`,
       name: SITE_NAME,
       url: absoluteUrl("/"),
-      description: "The public professional portfolio and developer resources for Laurent Maxhuni.",
+      description: "My public professional portfolio and developer resources.",
       founder: { "@id": `${absoluteUrl("/")}#person` },
       address: { "@type": "PostalAddress", addressLocality: "Vushtrri", addressCountry: "XK" },
       contactPoint: {

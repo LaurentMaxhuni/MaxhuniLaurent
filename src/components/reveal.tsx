@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type RevealProps = {
+type RevealProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode;
-  className?: string;
 };
 
-export default function Reveal({ children, className = "" }: RevealProps) {
+export default function Reveal({ children, className = "", ...props }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
 
@@ -32,7 +31,7 @@ export default function Reveal({ children, className = "" }: RevealProps) {
   }, []);
 
   return (
-    <div ref={ref} className={`reveal ${ready ? "reveal--ready" : ""} ${className}`}>
+    <div {...props} ref={ref} className={`reveal ${ready ? "reveal--ready" : ""} ${className}`}>
       {children}
     </div>
   );

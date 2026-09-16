@@ -31,7 +31,7 @@ Payload’s development database push is enabled outside production. Use a dispo
 
 ## Blog workflow
 
-Posts live in Payload at `/admin`. Authors can save incomplete Markdown drafts, then publish them when ready. Only published posts are available at `/blog` and `/blog/[slug]`.
+Posts can be managed in Payload at `/admin`. Authors can save incomplete Markdown drafts, then publish them when ready. The three core notes are also checked into `src/content/posts.ts`, so the public archive stays available before a database is configured; published CMS records merge with that fallback and override a matching slug. Only published posts are available at `/blog` and `/blog/[slug]`.
 
 Markdown supports GitHub-flavored tables, task lists, and fenced code blocks. Raw HTML is intentionally not rendered. Optional cover images come from the `media` collection, where alt text is required.
 

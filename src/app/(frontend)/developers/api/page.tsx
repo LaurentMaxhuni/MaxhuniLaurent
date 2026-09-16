@@ -5,16 +5,15 @@ import StaticPage from "@/components/static-page";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Laurent Maxhuni Portfolio API",
-  description: "Read-only API reference for published Laurent Maxhuni blog posts.",
+  title: "My Portfolio API",
+  description: "Read-only API reference for my published blog posts.",
   pathname: "/developers/api",
 });
 
 export default function ApiDeveloperPage() {
   return (
     <StaticPage
-      eyebrow="Laurent Maxhuni Portfolio API"
-      title="Laurent Maxhuni Portfolio API."
+      title="My portfolio API."
       lead="A versioned, read-only API for the public blog."
       related={[
         { href: "/openapi.json", label: "OpenAPI 3.1 document" },

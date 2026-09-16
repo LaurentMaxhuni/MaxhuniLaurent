@@ -130,7 +130,7 @@ export function GET() {
       title: `${SITE_NAME} Portfolio API`,
       version: `v${API_VERSION}.0.0`,
       description:
-        `Read-only public API for published posts in Laurent Maxhuni's signal archive. The canonical endpoint is versioned at /api/v${API_VERSION}/posts. The unversioned /api/posts URL remains a compatibility alias. Responses use a typed RFC 9457-style application/problem+json error object with a machine-readable code and human-readable message. Rate limits are communicated with RateLimit-Policy, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, and RateLimit headers; 429 responses also include Retry-After. Future endpoint deprecations use the RFC 9745 Deprecation structured date and RFC 8594 Sunset HTTP-date, with a migration timeline published in the developer API guide.`,
+        `Read-only public API for published posts in my signal archive. The canonical endpoint is versioned at /api/v${API_VERSION}/posts. The unversioned /api/posts URL remains a compatibility alias. Responses use a typed RFC 9457-style application/problem+json error object with a machine-readable code and human-readable message. Rate limits are communicated with RateLimit-Policy, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, and RateLimit headers; 429 responses also include Retry-After. Future endpoint deprecations use the RFC 9745 Deprecation structured date and RFC 8594 Sunset HTTP-date, with a migration timeline published in the developer API guide.`,
       contact: {
         name: `${SITE_NAME} contact guidance`,
         url: absoluteUrl("/contact"),

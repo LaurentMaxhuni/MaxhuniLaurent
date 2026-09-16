@@ -1,0 +1,6 @@
+Official screenshots reproduced from Ollama's new app article:
+
+- https://files.ollama.com/ollama-app-screenshot.png
+- https://files.ollama.com/context_length.png
+- Source page: https://ollama.com/blog/new-app
+- Retrieved: 2026-09-12

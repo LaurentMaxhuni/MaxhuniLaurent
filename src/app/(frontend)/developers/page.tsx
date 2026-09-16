@@ -6,16 +6,15 @@ import { developersMarkdown } from "@/lib/agent-content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Laurent Maxhuni Developer Resources",
-  description: "Vercel-hosted developer portal for Laurent Maxhuni's public portfolio, API, Markdown representations, and MCP server.",
+  title: "My Developer Resources",
+  description: "My Vercel-hosted developer portal, API, Markdown representations, and MCP server.",
   pathname: "/developers",
 });
 
 export default function DevelopersPage() {
   return (
     <StaticPage
-      eyebrow="Laurent Maxhuni Developer Resources"
-      title="Laurent Maxhuni developer resources."
+      title="My developer resources."
       lead="Find the API, Markdown routes, sitemap, and MCP server in one place."
       related={[
         { href: "/developers/api", label: "Portfolio API" },
@@ -24,7 +23,7 @@ export default function DevelopersPage() {
       ]}
     >
       <p>{developersMarkdown().split("\n\n")[1]}</p>
-      <p>This is a Vercel-hosted Next.js portfolio. These resources document Laurent Maxhuni&apos;s public portfolio; they are not documentation for Vercel&apos;s products or APIs.</p>
+      <p>This is my Vercel-hosted Next.js portfolio. These resources document my public portfolio; they are not documentation for Vercel&apos;s products or APIs.</p>
       <h2>Start here</h2>
       <ul>
         <li><a href="/llms.txt">llms.txt</a> provides the concise site index and agent usage guidance.</li>

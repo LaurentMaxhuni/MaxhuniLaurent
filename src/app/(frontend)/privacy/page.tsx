@@ -6,14 +6,13 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Privacy",
-  description: "Privacy practices for Laurent Maxhuni's public portfolio and developer resources.",
+  description: "Privacy practices for my public portfolio and developer resources.",
   pathname: "/privacy",
 });
 
 export default function PrivacyPage() {
   return (
     <StaticPage
-      eyebrow="Privacy"
       title="A public portfolio that collects little data."
       lead="How this site handles the information needed to deliver its public pages."
       related={[

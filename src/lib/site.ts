@@ -20,7 +20,7 @@ function getSiteUrl() {
 export const SITE_URL = getSiteUrl();
 export const SITE_NAME = "Laurent Maxhuni";
 export const SITE_DESCRIPTION =
-  "Portfolio, public project index, and developer resources for Laurent Maxhuni.";
+  "My portfolio, public project index, and developer resources.";
 export const SITE_OG_IMAGE = "/opengraph-image";
 export const SITE_SAME_AS = [
   "https://github.com/LaurentMaxhuni",

@@ -7,14 +7,13 @@ import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "About",
-  description: "Background, working approach, and public project record for Laurent Maxhuni.",
+  description: "My background, working approach, and public project record.",
   pathname: "/about",
 });
 
 export default function AboutPage() {
   return (
     <StaticPage
-      eyebrow="About Laurent Maxhuni"
       title="A developer who builds and publishes."
       lead="The work, experiments, and notes behind the portfolio."
       related={[

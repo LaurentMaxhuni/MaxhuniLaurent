@@ -25,7 +25,7 @@ async function blogIndexMarkdown() {
     ? posts.map((post) => `- [${post.title}](${absoluteUrl(`/blog/${post.slug}`)}) — ${post.excerpt}`).join("\n")
     : "No published transmissions are currently available.";
 
-  return `# Laurent Maxhuni Signal Archive\n\nNotes on products, interfaces, experiments, and the work behind them.\n\n## Published transmissions\n\n${rows}\n`;
+  return `# My Signal Archive\n\nPublished writing on products, interfaces, experiments, and the work behind them.\n\n## Published posts\n\n${rows}\n`;
 }
 
 async function blogPostMarkdown(slug: string) {

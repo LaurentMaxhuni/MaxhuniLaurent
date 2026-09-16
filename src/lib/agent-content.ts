@@ -2,16 +2,16 @@ import { capabilities, getProjectBySlug, projects, site } from "../content/portf
 import { CORE_SITE_PATHS, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
 
 const developerResources = [
-  ["Laurent Maxhuni developer portal", "/developers", "Human-readable integration and discovery guide."],
-  ["Laurent Maxhuni API reference", "/developers/api", "Read-only, versioned REST API documentation."],
-  ["Laurent Maxhuni API versioning and deprecation policy", "/developers/api/versioning", "Stable URL versioning and runtime deprecation signals for API clients."],
-  ["Laurent Maxhuni versioned posts endpoint", "/api/v1/posts", "Canonical read-only JSON endpoint for published posts."],
+  ["My developer portal", "/developers", "Human-readable integration and discovery guide."],
+  ["My API reference", "/developers/api", "Read-only, versioned REST API documentation."],
+  ["My API versioning and deprecation policy", "/developers/api/versioning", "Stable URL versioning and runtime deprecation signals for API clients."],
+  ["My versioned posts endpoint", "/api/v1/posts", "Canonical read-only JSON endpoint for published posts."],
   ["Laurent Maxhuni OpenAPI document", "/openapi.json", "Machine-readable OpenAPI 3.1 description with typed schemas and errors."],
-  ["Laurent Maxhuni authentication guide", "/developers/auth", "Public read access and admin authentication boundary."],
-  ["Laurent Maxhuni MCP server guide", "/developers/mcp", "Connect with Streamable HTTP at /.well-known/mcp."],
+  ["My authentication guide", "/developers/auth", "Public read access and admin authentication boundary."],
+  ["My MCP server guide", "/developers/mcp", "Connect with Streamable HTTP at /.well-known/mcp."],
   ["Laurent Maxhuni MCP handshake endpoint", "/.well-known/mcp", "Live Streamable HTTP JSON-RPC endpoint for MCP clients."],
-  ["Laurent Maxhuni llms.txt index", "/llms.txt", "Compact Markdown site index and agent usage guidance."],
-  ["Laurent Maxhuni XML sitemap", "/sitemap.xml", "Indexable URLs, including published blog posts."],
+  ["My llms.txt index", "/llms.txt", "Compact Markdown site index and agent usage guidance."],
+  ["My XML sitemap", "/sitemap.xml", "Indexable URLs, including published blog posts."],
 ] as const;
 
 function projectLines() {
@@ -24,17 +24,17 @@ function projectLines() {
 }
 
 export const aboutCopy = [
-  "Laurent Maxhuni is a developer and product builder based in Vushtrri, Kosovo. This portfolio documents the work he builds and studies: focused interfaces, AI-assisted tools, browser extensions, and experiments that turn technical ideas into something people can use. His work connects frontend development, backend thinking, product design, and the details needed to ship a product.",
-  "The project index links to live products and public repositories so visitors can inspect the work instead of taking a claim at face value. Laurent also publishes notes on products, interfaces, experiments, and the decisions behind them. Mathematics and physics inform his approach, with an emphasis on clear reasoning, careful iteration, and useful outcomes.",
+  "I am a developer and product builder based in Vushtrri, Kosovo. This portfolio documents the work I build and study: focused interfaces, AI-assisted tools, browser extensions, and experiments that turn technical ideas into something people can use. My work connects frontend development, backend thinking, product design, and the details needed to ship a product.",
+  "The project index links to live products and public repositories so you can inspect the work instead of taking a claim at face value. I also publish notes on products, interfaces, experiments, and the decisions behind them. Mathematics and physics inform my approach, with an emphasis on clear reasoning, careful iteration, and useful outcomes.",
 ].join("\n\n");
 
 export const contactCopy = [
-  "For professional conversations, use Laurent Maxhuni's LinkedIn or GitHub profile. Both are linked below and on the homepage. Use LinkedIn for introductions, collaboration requests, and product conversations. Use GitHub for questions about a public repository, issue, implementation detail, or contribution. Include the project, problem, timing, and relevant link or repository so Laurent can give a useful reply.",
-  "This site does not list a direct email address or telephone number. Laurent keeps public contact on the channels he actively maintains, which avoids stale addresses and automated spam. If a private channel makes sense after an initial conversation, you can arrange it through one of those verified profiles. Do not send credentials, payment information, or other sensitive material through public issue trackers or social-platform messages.",
+  "For professional conversations, use my LinkedIn or GitHub profile. Both are linked below and on the homepage. Use LinkedIn for introductions, collaboration requests, and product conversations. Use GitHub for questions about a public repository, issue, implementation detail, or contribution. Include the project, problem, timing, and relevant link or repository so I can give a useful reply.",
+  "This site does not list a direct email address or telephone number. I keep public contact on the channels I actively maintain, which avoids stale addresses and automated spam. If a private channel makes sense after an initial conversation, you can arrange it through one of those verified profiles. Do not send credentials, payment information, or other sensitive material through public issue trackers or social-platform messages.",
 ].join("\n\n");
 
 export const privacyCopy = [
-  "You can read Laurent Maxhuni's portfolio without creating an account, submitting a contact form, or providing personal information. The public pages cover projects, writing, and developer resources. The site does not sell personal data or run a public newsletter. External destinations such as GitHub, LinkedIn, Vercel, Netlify, and project websites have their own privacy practices and terms.",
+  "You can read my portfolio without creating an account, submitting a contact form, or providing personal information. The public pages cover projects, writing, and developer resources. I do not sell personal data or run a public newsletter. External destinations such as GitHub, LinkedIn, Vercel, Netlify, and project websites have their own privacy practices and terms.",
   "Hosting and delivery providers may process the technical information needed to deliver and protect a request, including an IP address, user-agent string, request time, and security or performance logs. Providers use those records to operate the service, diagnose failures, and prevent abuse. The private CMS is limited to authorized administrators. Visitors cannot create accounts or publish content through this site.",
   "For a question about this policy, use the verified LinkedIn or GitHub contact channels on the contact page. Do not send secrets or sensitive documents through public channels. This policy may change if the site adds a feature with different data practices. It currently describes the public portfolio and developer resources available at this domain.",
 ].join("\n\n");
@@ -44,11 +44,11 @@ export function homepageMarkdown() {
 
 > ${SITE_DESCRIPTION}
 
-${site.role} based in ${site.location}. Laurent builds web products, AI tools, and browser extensions with clear frontend execution and practical product thinking.
+${site.role} based in ${site.location}. I build web products, AI tools, and browser extensions with clear frontend execution and practical product thinking.
 
 ## When to use this portfolio
 
-Use this site to evaluate Laurent's public work, find a relevant project or repository, understand his technical range, or choose a public channel for a product or engineering conversation. Start with the project index, then follow its live-product and source links for primary evidence.
+Use this site to evaluate my public work, find a relevant project or repository, understand my technical range, or choose a public channel for a product or engineering conversation. Start with the project index, then follow its live-product and source links for primary evidence.
 
 ## Public projects
 
@@ -73,7 +73,7 @@ ${developerResources.map(([name, path, description]) => `- [${name}](${absoluteU
 export function developersMarkdown() {
   return `# ${SITE_NAME} Developer Resources
 
-This is the developer portal for Laurent Maxhuni's public portfolio and blog. Use it to retrieve public portfolio content in a machine-readable form, discover published writing, or connect an agent to the site's read-only MCP tools.
+This is my developer portal and blog. Use it to retrieve public portfolio content in a machine-readable form, discover published writing, or connect an agent to the site's read-only MCP tools.
 
 ## Available resources
 
@@ -173,7 +173,7 @@ export function privacyMarkdown() {
 }
 
 export function notFoundMarkdown(pathname: string) {
-  return `# Page not found\n\n\`${pathname}\` is not a published page on ${SITE_NAME}'s site.\n\n## Where to look next\n\n- [Portfolio home](${SITE_URL})\n- [Developer resources](${absoluteUrl("/developers")})\n- [LLMs index](${absoluteUrl("/llms.txt")})\n- [XML sitemap](${absoluteUrl("/sitemap.xml")})\n`;
+  return `# Page not found\n\n\`${pathname}\` is not a published page on my site.\n\n## Where to look next\n\n- [Portfolio home](${SITE_URL})\n- [Developer resources](${absoluteUrl("/developers")})\n- [LLMs index](${absoluteUrl("/llms.txt")})\n- [XML sitemap](${absoluteUrl("/sitemap.xml")})\n`;
 }
 
 export function projectMarkdown(slug: string) {

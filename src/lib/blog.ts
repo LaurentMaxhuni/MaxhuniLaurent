@@ -2,20 +2,8 @@ import config from "@payload-config";
 import { getPayload, type PaginatedDocs } from "payload";
 import { cache } from "react";
 
+import { builtInPosts } from "@/content/posts";
 import type { Post } from "../../payload-types";
-
-const EMPTY_POSTS_RESULT: PaginatedDocs<Post> = {
-  docs: [],
-  hasNextPage: false,
-  hasPrevPage: false,
-  limit: 100,
-  nextPage: null,
-  page: 1,
-  pagingCounter: 1,
-  prevPage: null,
-  totalDocs: 0,
-  totalPages: 0,
-};
 
 function hasConfiguredDatabase() {
   const value = process.env.DATABASE_URI?.trim();
@@ -40,52 +28,95 @@ type PublishedPostsOptions = {
   page?: number;
 };
 
-export const getPublishedPosts = cache(async function getPublishedPosts({ limit = 100, page = 1 }: PublishedPostsOptions = {}) {
-  if (!hasConfiguredDatabase()) {
-    return {
-      ...EMPTY_POSTS_RESULT,
-      limit,
-      page,
-    };
+function postDate(post: Post) {
+  return new Date(post.publishedAt ?? post.createdAt).getTime();
+}
+
+function mergePublishedPosts(cmsPosts: Post[]) {
+  const postsBySlug = new Map(builtInPosts.map((post) => [post.slug, post]));
+
+  for (const post of cmsPosts) {
+    postsBySlug.set(post.slug, post);
   }
 
-  const payload = await getPayload({ config });
+  return [...postsBySlug.values()].sort((first, second) => postDate(second) - postDate(first));
+}
 
-  return payload.find({
-    collection: "posts",
-    depth: 1,
-    limit,
-    page,
-    overrideAccess: false,
-    sort: "-publishedAt",
-    where: {
-      _status: {
-        equals: "published",
-      },
-    },
-  });
+function paginatePosts(posts: Post[], limit: number, page: number): PaginatedDocs<Post> {
+  const normalizedLimit = Math.max(1, Math.min(100, Math.floor(limit)));
+  const normalizedPage = Math.max(1, Math.floor(page));
+  const totalDocs = posts.length;
+  const totalPages = totalDocs === 0 ? 0 : Math.ceil(totalDocs / normalizedLimit);
+  const start = (normalizedPage - 1) * normalizedLimit;
+
+  return {
+    docs: posts.slice(start, start + normalizedLimit),
+    hasNextPage: normalizedPage < totalPages,
+    hasPrevPage: normalizedPage > 1 && totalDocs > 0,
+    limit: normalizedLimit,
+    nextPage: normalizedPage < totalPages ? normalizedPage + 1 : null,
+    page: normalizedPage,
+    pagingCounter: totalDocs === 0 ? 1 : start + 1,
+    prevPage: normalizedPage > 1 ? normalizedPage - 1 : null,
+    totalDocs,
+    totalPages,
+  };
+}
+
+export const getPublishedPosts = cache(async function getPublishedPosts({ limit = 100, page = 1 }: PublishedPostsOptions = {}) {
+  let cmsPosts: Post[] = [];
+
+  if (hasConfiguredDatabase()) {
+    try {
+      const payload = await getPayload({ config });
+      const result = await payload.find({
+        collection: "posts",
+        depth: 1,
+        limit: 100,
+        page: 1,
+        overrideAccess: false,
+        sort: "-publishedAt",
+        where: {
+          _status: {
+            equals: "published",
+          },
+        },
+      });
+      cmsPosts = result.docs;
+    } catch {
+      // The checked-in notes keep the public archive available during a CMS outage.
+    }
+  }
+
+  return paginatePosts(mergePublishedPosts(cmsPosts), limit, page);
 });
 
 export const getPublishedPost = cache(async function getPublishedPost(slug: string) {
-  if (!hasConfiguredDatabase()) return null;
+  if (hasConfiguredDatabase()) {
+    try {
+      const payload = await getPayload({ config });
+      const result = await payload.find({
+        collection: "posts",
+        depth: 1,
+        limit: 1,
+        overrideAccess: false,
+        where: {
+          _status: {
+            equals: "published",
+          },
+          slug: {
+            equals: slug,
+          },
+        },
+      });
 
-  const payload = await getPayload({ config });
-  const result = await payload.find({
-    collection: "posts",
-    depth: 1,
-    limit: 1,
-    overrideAccess: false,
-    where: {
-      _status: {
-        equals: "published",
-      },
-      slug: {
-        equals: slug,
-      },
-    },
-  });
+      if (result.docs[0]) return result.docs[0];
+    } catch {
+      // Fall through to the checked-in notes when the CMS cannot be reached.
+    }
+  }
 
-  return result.docs[0] ?? null;
+  return builtInPosts.find((post) => post.slug === slug) ?? null;
 });
 
 export function formatPublicationDate(value: string) {

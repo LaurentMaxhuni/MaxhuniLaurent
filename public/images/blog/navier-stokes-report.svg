@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Reported Navier-Stokes proof</title>
+  <desc id="desc">A monochrome fluid-flow editorial diagram labelled as a reported proof under review.</desc>
+  <rect width="1600" height="900" fill="#090909"/>
+  <g fill="none" stroke="#2a2a2a" stroke-width="1">
+    <path d="M80 164H1520M80 744H1520"/>
+    <path d="M80 164V744M1520 164V744"/>
+  </g>
+  <g fill="none" stroke="#d7d0c7" stroke-linecap="round">
+    <path d="M108 570C270 370 388 694 554 478S856 338 1012 535 1286 700 1490 362" stroke-width="3"/>
+    <path d="M108 630C250 460 400 758 570 550S850 400 1014 610 1290 770 1490 450" stroke="#817b73" stroke-width="2"/>
+    <path d="M108 506C270 292 400 606 558 410S850 282 1016 470 1290 610 1490 270" stroke="#817b73" stroke-width="2"/>
+    <path d="M108 684C244 574 396 820 568 632S848 520 1015 690 1300 820 1490 552" stroke="#514d48" stroke-width="2"/>
+    <path d="M1160 274h234M1160 306h174M1160 338h204" stroke="#817b73" stroke-width="2"/>
+  </g>
+  <g fill="#aaa49c" font-family="Arial, Helvetica, sans-serif" letter-spacing="3">
+    <text x="104" y="108" font-size="18">FIELD NOTE / 02</text>
+    <text x="1160" y="226" font-size="16">REPORTED PROOF</text>
+    <text x="1160" y="390" font-size="16">LEAN FORMALIZATION</text>
+    <text x="1160" y="438" font-size="16">OPEN REVIEW</text>
+  </g>
+  <g fill="#f3efe8" font-family="Arial, Helvetica, sans-serif" font-weight="700">
+    <text x="104" y="276" font-size="72" letter-spacing="-3">NAVIER–STOKES</text>
+    <text x="104" y="352" font-size="72" letter-spacing="-3">CLAIM / CHECK / REPEAT</text>
+  </g>
+  <g fill="#d7d0c7" font-family="Georgia, serif">
+    <text x="104" y="444" font-size="34">∂u/∂t + (u · ∇)u = −∇p + ν∇²u</text>
+  </g>
+  <g fill="#777169" font-family="Arial, Helvetica, sans-serif" font-size="14" letter-spacing="2">
+    <text x="104" y="790">ANALYTICAL CLAIM / STATEMENTS C AND D / INDEPENDENT EXAMINATION</text>
+    <text x="1496" y="790" text-anchor="end">2026.09</text>
+  </g>
+</svg>

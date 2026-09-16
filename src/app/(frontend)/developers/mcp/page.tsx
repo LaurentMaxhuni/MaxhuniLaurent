@@ -5,16 +5,15 @@ import { pageMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Laurent Maxhuni MCP Server",
-  description: "Streamable HTTP MCP server for public Laurent Maxhuni portfolio search and guidance.",
+  title: "My MCP Server",
+  description: "My Streamable HTTP MCP server for public portfolio search and guidance.",
   pathname: "/developers/mcp",
 });
 
 export default function McpDeveloperPage() {
   return (
     <StaticPage
-      eyebrow="Laurent Maxhuni MCP Server"
-      title="Laurent Maxhuni MCP tools for agents."
+      title="My MCP tools for agents."
       lead="A public, stateless Streamable HTTP endpoint for project search and site discovery."
       related={[
         { href: "/llms.txt", label: "llms.txt" },

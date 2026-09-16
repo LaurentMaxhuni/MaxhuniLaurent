@@ -4,7 +4,7 @@ import StaticPage from "@/components/static-page";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Laurent Maxhuni Authentication Guide",
+  title: "My Authentication Guide",
   description: "Authentication boundary for the public portfolio API and private administration area.",
   pathname: "/developers/auth",
 });
@@ -12,8 +12,7 @@ export const metadata: Metadata = pageMetadata({
 export default function AuthDeveloperPage() {
   return (
     <StaticPage
-      eyebrow="Laurent Maxhuni Authentication Guide"
-      title="Laurent Maxhuni public API access."
+      title="My public API access."
       lead="The site keeps public discovery separate from private publishing controls."
       related={[
         { href: "/developers/api", label: "Portfolio API" },

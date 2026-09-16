@@ -6,16 +6,15 @@ import { versioningMarkdown } from "@/lib/agent-content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Laurent Maxhuni API Versioning and Deprecation Policy",
-  description: "URL versioning, compatibility aliases, and RFC 9745 and RFC 8594 deprecation signals for the Laurent Maxhuni Portfolio API.",
+  title: "My API Versioning and Deprecation Policy",
+  description: "URL versioning, compatibility aliases, and RFC 9745 and RFC 8594 deprecation signals for my portfolio API.",
   pathname: "/developers/api/versioning",
 });
 
 export default function ApiVersioningPage() {
   return (
     <StaticPage
-      eyebrow="Laurent Maxhuni API Versioning"
-      title="Laurent Maxhuni API versioning and deprecation policy."
+      title="My API versioning and deprecation policy."
       lead="Stable URLs and explicit lifecycle signals for agents and integrations."
       related={[
         { href: "/developers/api", label: "Portfolio API" },

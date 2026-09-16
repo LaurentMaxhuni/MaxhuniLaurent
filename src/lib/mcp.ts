@@ -24,7 +24,7 @@ type JsonRpcResponse = {
 const tools = [
   {
     name: "search_portfolio",
-    title: "Search Laurent Maxhuni's public portfolio",
+    title: "Search my public portfolio",
     description: "Search public project names, summaries, descriptions, and technology tags.",
     inputSchema: {
       type: "object",
@@ -51,7 +51,7 @@ const tools = [
   },
   {
     name: "list_published_posts",
-    title: "List Laurent Maxhuni published posts",
+    title: "List my published posts",
     description: "Return published signal-archive posts with pagination metadata. This is the MCP form of the public REST posts API.",
     inputSchema: {
       type: "object",
@@ -89,13 +89,13 @@ const tools = [
 const resources = [
   {
     uri: "portfolio://site-guide",
-    name: "Laurent Maxhuni portfolio guide",
+    name: "My portfolio guide",
     description: "Public portfolio guidance and developer-resource links in Markdown.",
     mimeType: "text/markdown",
   },
   {
     uri: "portfolio://projects",
-    name: "Laurent Maxhuni public projects",
+    name: "My public projects",
     description: "Public project index in Markdown.",
     mimeType: "text/markdown",
   },

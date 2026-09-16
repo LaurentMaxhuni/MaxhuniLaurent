@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Ollama with Claude Code</title>
+  <desc id="desc">A monochrome setup diagram connecting a local Ollama model to a Claude Code terminal session.</desc>
+  <rect width="1600" height="900" fill="#090909"/>
+  <g fill="none" stroke="#242424" stroke-width="1">
+    <path d="M80 164H1520M80 742H1520"/>
+    <path d="M80 164V742M1520 164V742"/>
+  </g>
+  <g fill="#aaa49c" font-family="Arial, Helvetica, sans-serif" letter-spacing="3">
+    <text x="104" y="108" font-size="18">FIELD NOTE / 03</text>
+    <text x="104" y="232" font-size="17">LOCAL-FIRST TERMINAL WORKFLOW</text>
+  </g>
+  <g fill="#f3efe8" font-family="Arial, Helvetica, sans-serif" font-weight="700">
+    <text x="104" y="332" font-size="82" letter-spacing="-3">OLLAMA</text>
+    <text x="104" y="416" font-size="82" letter-spacing="-3">× CLAUDE CODE</text>
+  </g>
+  <g fill="none" stroke="#d7d0c7" stroke-width="2">
+    <rect x="104" y="520" width="310" height="116" rx="12"/>
+    <rect x="645" y="520" width="310" height="116" rx="12"/>
+    <rect x="1186" y="520" width="310" height="116" rx="12"/>
+    <path d="M414 578H645M955 578H1186"/>
+    <path d="m612 564 32 14-32 14M1153 564l32 14-32 14"/>
+  </g>
+  <g fill="#f3efe8" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing="2">
+    <text x="136" y="570">MODEL</text>
+    <text x="136" y="608" fill="#aaa49c" font-size="17" font-weight="400">OLLAMA RUNTIME</text>
+    <text x="677" y="570">ENDPOINT</text>
+    <text x="677" y="608" fill="#aaa49c" font-size="17" font-weight="400">LOCALHOST:11434</text>
+    <text x="1218" y="570">SESSION</text>
+    <text x="1218" y="608" fill="#aaa49c" font-size="17" font-weight="400">CLAUDE CODE CLI</text>
+  </g>
+  <g fill="#777169" font-family="Arial, Helvetica, sans-serif" font-size="14" letter-spacing="2">
+    <text x="104" y="788">INSTALL / PULL / CONNECT / TEST</text>
+    <text x="1496" y="788" text-anchor="end">2026.09</text>
+  </g>
+</svg>

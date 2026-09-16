@@ -84,7 +84,7 @@ export interface BlackHoleHeroSectionProps
    * in a still and busy in motion, and the gas is what should be moving.
    */
   starBrightness?: number;
-  /** Bloom, 0 to 2. */
+  /** Retained for compatibility with existing call sites; no glow pass is rendered. */
   glow?: number;
   /** Exposure into the tone curve. */
   exposure?: number;
@@ -486,55 +486,12 @@ void main() {
 }
 `;
 
-/** Pulls out what is brighter than the threshold, at a quarter of the size. */
-const BRIGHT_FRAG = `
-precision highp float;
-varying vec2 vUv;
-uniform sampler2D uTex;
-uniform vec2 uTexel;
-uniform float uDecode;
-uniform float uPack;
-uniform float uThreshold;
-
-void main() {
-  vec3 s = texture2D(uTex, vUv + uTexel * vec2(-1.0, -1.0)).rgb
-         + texture2D(uTex, vUv + uTexel * vec2( 1.0, -1.0)).rgb
-         + texture2D(uTex, vUv + uTexel * vec2(-1.0,  1.0)).rgb
-         + texture2D(uTex, vUv + uTexel * vec2( 1.0,  1.0)).rgb;
-  s *= 0.25;
-  if (uDecode > 0.5) s = s / max(vec3(0.002), 1.0 - s);
-  float l = max(s.r, max(s.g, s.b));
-  s *= max(0.0, l - uThreshold) / max(0.0001, l);
-  gl_FragColor = vec4(s * uPack, 1.0);
-}
-`;
-
-/** Five taps, weights from a gaussian, offsets picked so the sampler pairs them. */
-const BLUR_FRAG = `
-precision highp float;
-varying vec2 vUv;
-uniform sampler2D uTex;
-uniform vec2 uStep;
-
-void main() {
-  vec3 s = texture2D(uTex, vUv).rgb * 0.2270270;
-  s += (texture2D(uTex, vUv + uStep * 1.3846154).rgb
-      + texture2D(uTex, vUv - uStep * 1.3846154).rgb) * 0.3162162;
-  s += (texture2D(uTex, vUv + uStep * 3.2307692).rgb
-      + texture2D(uTex, vUv - uStep * 3.2307692).rgb) * 0.0702702;
-  gl_FragColor = vec4(s, 1.0);
-}
-`;
-
 const COMPOSITE_FRAG = `
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uScene;
-uniform sampler2D uBloom;
 uniform vec2  uRes;
 uniform float uDecode;
-uniform float uPack;
-uniform float uGlow;
 uniform float uExposure;
 uniform float uVignette;
 uniform float uScrimDir;
@@ -548,9 +505,7 @@ vec3 aces(vec3 x) {
 void main() {
   vec3 scene = texture2D(uScene, vUv).rgb;
   if (uDecode > 0.5) scene = scene / max(vec3(0.002), 1.0 - scene);
-  vec3 bloom = texture2D(uBloom, vUv).rgb / uPack;
-
-  vec3 c = scene + bloom * uGlow;
+  vec3 c = scene;
   c = aces(c * uExposure);
   c = pow(max(c, 0.0), vec3(0.4545));
 
@@ -637,7 +592,7 @@ export function BlackHoleHeroSection({
   midColor = "#FF9838",
   coolColor = "#8E3A0B",
   starBrightness = 0,
-  glow = 1,
+  glow = 0,
   exposure = 0.9,
   vignette = 0.28,
   steps = 300,
@@ -771,7 +726,7 @@ export function BlackHoleHeroSection({
 
     /* --- render targets --------------------------------------------------- */
 
-    // Half floats keep the gas bright enough to bloom properly. Where they are
+    // Half floats preserve the gas gradients. Where they are
     // missing the scene is packed with Reinhard into 8 bits instead and
     // unpacked on the way out — coarser, but it holds the highlights.
     let hdr = true;
@@ -801,9 +756,6 @@ export function BlackHoleHeroSection({
       !!gl.getExtension("OES_texture_half_float_linear") ||
       !hdr;
     const filter = linearOK ? gl.LINEAR : gl.NEAREST;
-    /** Bloom is scaled down before it goes into 8 bits, and scaled back after. */
-    const pack = hdr ? 1 : 0.12;
-
     function makeTarget(w: number, h: number): Target | null {
       const tex = gl!.createTexture();
       const fb = gl!.createFramebuffer();
@@ -832,15 +784,11 @@ export function BlackHoleHeroSection({
 
     let sceneProg: Prog | null = null;
     let blendProg: Prog | null = null;
-    let brightProg: Prog | null = null;
-    let blurProg: Prog | null = null;
     let compProg: Prog | null = null;
     let vbo: WebGLBuffer | null = null;
     let scene: Target | null = null;
     let histA: Target | null = null;
     let histB: Target | null = null;
-    let bloomA: Target | null = null;
-    let bloomB: Target | null = null;
     /** Frames folded into the running average since it was last thrown away. */
     let settled = 0;
 
@@ -852,10 +800,8 @@ export function BlackHoleHeroSection({
     function build(): boolean {
       sceneProg = link(SCENE_FRAG);
       blendProg = link(BLEND_FRAG);
-      brightProg = link(BRIGHT_FRAG);
-      blurProg = link(BLUR_FRAG);
       compProg = link(COMPOSITE_FRAG);
-      if (!sceneProg || !blendProg || !brightProg || !blurProg || !compProg) return false;
+      if (!sceneProg || !blendProg || !compProg) return false;
 
       // One triangle, big enough to cover the frame. Cheaper than two, and no
       // seam down the diagonal.
@@ -874,7 +820,7 @@ export function BlackHoleHeroSection({
     }
 
     function dropTargets() {
-      for (const t of [scene, histA, histB, bloomA, bloomB]) {
+      for (const t of [scene, histA, histB]) {
         if (!t) continue;
         gl!.deleteTexture(t.tex);
         gl!.deleteFramebuffer(t.fb);
@@ -882,8 +828,6 @@ export function BlackHoleHeroSection({
       scene = null;
       histA = null;
       histB = null;
-      bloomA = null;
-      bloomB = null;
       settled = 0;
     }
 
@@ -914,10 +858,6 @@ export function BlackHoleHeroSection({
       scene = makeTarget(sw, sh);
       histA = makeTarget(sw, sh);
       histB = makeTarget(sw, sh);
-      const bw = Math.max(2, sw >> 2);
-      const bh = Math.max(2, sh >> 2);
-      bloomA = makeTarget(bw, bh);
-      bloomB = makeTarget(bw, bh);
     }
 
     /* --- draw ------------------------------------------------------------- */
@@ -956,8 +896,8 @@ export function BlackHoleHeroSection({
     ];
 
     function render(t: number) {
-      if (!sceneProg || !blendProg || !brightProg || !blurProg || !compProg) return;
-      if (!scene || !histA || !histB || !bloomA || !bloomB) return;
+      if (!sceneProg || !blendProg || !compProg) return;
+      if (!scene || !histA || !histB) return;
       const C = props.current;
 
       // Camera: an orbit about the hole, at a fixed height above the disc.
@@ -1041,39 +981,12 @@ export function BlackHoleHeroSection({
       histB = tmp;
       settled++;
 
-      /* bright pass ------------------------------------------------------- */
-      pass(brightProg, bloomA);
-      bind(shown.tex, 0);
-      gl!.uniform1i(brightProg.u.uTex!, 0);
-      gl!.uniform2f(brightProg.u.uTexel!, 1 / shown.w, 1 / shown.h);
-      gl!.uniform1f(brightProg.u.uDecode!, hdr ? 0 : 1);
-      gl!.uniform1f(brightProg.u.uPack!, pack);
-      gl!.uniform1f(brightProg.u.uThreshold!, 0.85);
-      draw();
-
-      /* two rounds of blur, the second wider ------------------------------ */
-      const blurStep = (src: Target, dst: Target, dx: number, dy: number) => {
-        pass(blurProg!, dst);
-        bind(src.tex, 0);
-        gl!.uniform1i(blurProg!.u.uTex!, 0);
-        gl!.uniform2f(blurProg!.u.uStep!, dx / dst.w, dy / dst.h);
-        draw();
-      };
-      blurStep(bloomA, bloomB, 1, 0);
-      blurStep(bloomB, bloomA, 0, 1);
-      blurStep(bloomA, bloomB, 2.6, 0);
-      blurStep(bloomB, bloomA, 0, 2.6);
-
       /* composite --------------------------------------------------------- */
       pass(compProg, null);
       bind(shown.tex, 0);
-      bind(bloomA.tex, 1);
       gl!.uniform1i(compProg.u.uScene!, 0);
-      gl!.uniform1i(compProg.u.uBloom!, 1);
       gl!.uniform2f(compProg.u.uRes!, width, height);
       gl!.uniform1f(compProg.u.uDecode!, hdr ? 0 : 1);
-      gl!.uniform1f(compProg.u.uPack!, pack);
-      gl!.uniform1f(compProg.u.uGlow!, Math.max(0, C.glow) * 0.26);
       gl!.uniform1f(compProg.u.uExposure!, Math.max(0.05, C.exposure));
       gl!.uniform1f(compProg.u.uVignette!, Math.max(0, Math.min(1, C.vignette)));
       gl!.uniform1f(
@@ -1168,7 +1081,7 @@ export function BlackHoleHeroSection({
       canvas.removeEventListener("webglcontextrestored", onRestored);
       dropTargets();
       if (vbo) gl.deleteBuffer(vbo);
-      for (const p of [sceneProg, blendProg, brightProg, blurProg, compProg]) {
+      for (const p of [sceneProg, blendProg, compProg]) {
         if (p) gl.deleteProgram(p.program);
       }
       // The context is deliberately left alive. Killing it here with

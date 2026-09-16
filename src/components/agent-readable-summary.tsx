@@ -10,10 +10,10 @@ import { developerResources } from "@/lib/agent-content";
 export default function AgentReadableSummary() {
   return (
     <noscript>
-      <section className="agent-readable-summary" aria-labelledby="agent-readable-summary-title">
-        <h2 id="agent-readable-summary-title">Laurent Maxhuni developer portfolio</h2>
+      <section className="agent-readable-summary" aria-labelledby="agent-readable-summary-title" data-agent-label="Laurent Maxhuni developer portfolio">
+        <h2 id="agent-readable-summary-title">My developer portfolio</h2>
         <p>
-          Laurent Maxhuni is a developer and product builder based in Vushtrri, Kosovo. This portfolio documents web products, AI tools, browser extensions, open-source repositories, and product experiments. Use the project pages and primary repository links to inspect the work, read the public signal archive, or choose a developer resource for an automated integration.
+          I&apos;m a developer and product builder based in Vushtrri, Kosovo. This portfolio documents the web products, AI tools, browser extensions, open-source repositories, and product experiments I build. Use the project pages and primary repository links to inspect the work, read the public signal archive, or choose a developer resource for an automated integration.
         </p>
         <h3>Public work</h3>
         <ul>

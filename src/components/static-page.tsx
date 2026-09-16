@@ -5,21 +5,19 @@ import Navbar from "@/components/navbar";
 import SiteFooter from "@/components/site-footer";
 
 type StaticPageProps = {
-  eyebrow: string;
   title: string;
   lead: string;
   children: ReactNode;
   related?: Array<{ href: string; label: string }>;
 };
 
-export default function StaticPage({ eyebrow, title, lead, children, related = [] }: StaticPageProps) {
+export default function StaticPage({ title, lead, children, related = [] }: StaticPageProps) {
   return (
     <>
       <Navbar />
       <main className="static-page">
         <article className="shell static-page__article">
           <header className="static-page__header">
-            <p className="section-kicker">{eyebrow}</p>
             <h1>{title}</h1>
             <p>{lead}</p>
           </header>

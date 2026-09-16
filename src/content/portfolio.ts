@@ -28,8 +28,8 @@ export type Project = {
   screenshots: ProjectScreenshot[];
 };
 
-// This is a static frontend source, not a CMS. Project details were read from
-// LaurentMaxhuni's public GitHub profile and live product sites on August 23, 2026.
+// This is a static frontend source, not a CMS. I read the project details from
+// my public GitHub profile and live product sites on August 23, 2026.
 // Screenshots are real captures of each live product or repository page.
 export const site = {
   name: "Laurent Maxhuni",
@@ -189,7 +189,7 @@ export const projects: Project[] = [
     summary:
       "A Python scanning utility under active development, with source and commit history on GitHub.",
     description:
-      "An experimental tool in Laurent's public archive. Check the repository for its latest state.",
+      "An experimental tool in my public archive. Check the repository for its latest state.",
     problem:
       "Small scanning experiments need a compact, inspectable starting point instead of a hidden or overbuilt system.",
     approach:

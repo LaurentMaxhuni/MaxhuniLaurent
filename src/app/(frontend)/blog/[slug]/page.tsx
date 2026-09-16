@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const cover = getPostCover(post);
   const image = cover?.url ?? SITE_OG_IMAGE;
   const pathname = `/blog/${post.slug}`;
-  const title = `${post.title} | Notes`;
+  const title = `${post.title} | Blog`;
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -89,7 +89,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         "@id": `${canonicalUrl}#breadcrumb`,
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-          { "@type": "ListItem", position: 2, name: "Notes", item: absoluteUrl("/blog") },
+          { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl("/blog") },
           { "@type": "ListItem", position: 3, name: post.title, item: canonicalUrl },
         ],
       },
@@ -105,7 +105,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <nav className="blog-breadcrumb" aria-label="Breadcrumb">
             <ol>
               <li><Link href="/">Home</Link></li>
-              <li><Link href="/blog">Notes</Link></li>
+              <li><Link href="/blog">Blog</Link></li>
               <li aria-current="page">{post.title}</li>
             </ol>
           </nav>

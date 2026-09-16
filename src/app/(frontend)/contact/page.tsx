@@ -7,18 +7,17 @@ import { site } from "@/content/portfolio";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
-  description: "Verified public contact channels and guidance for reaching Laurent Maxhuni.",
+  description: "My verified public contact channels and guidance for professional conversations.",
   pathname: "/contact",
 });
 
 export default function ContactPage() {
   return (
     <StaticPage
-      eyebrow="Contact Laurent Maxhuni"
       title="Start with a clear message."
       lead="Use the verified public channels below for professional conversations."
       related={[
-        { href: "/about", label: "About Laurent" },
+        { href: "/about", label: "About me" },
         { href: "/privacy", label: "Privacy" },
       ]}
     >

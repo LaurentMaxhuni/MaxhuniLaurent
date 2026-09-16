@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Code2, Layers3, MessagesSquare, Orbit } from "lucide-react";
+import { ArrowUpRight, Code2, MessagesSquare, Orbit } from "lucide-react";
+import CompetitionTimeline from "@/components/competition-timeline";
 import OrbitingSkills from "@/components/orbiting-skills";
 import RepositoryArchive from "@/components/repository-archive";
 import Reveal from "@/components/reveal";
@@ -42,12 +43,12 @@ export function ProjectsSection() {
   ];
   const repositoryList = projects.filter((project) => project.kind === "repository" && project.id !== "ideator-dev");
 
+  // Proton Pass annotates the section containing the repository search field before React hydrates.
   return (
-    <section id="projects" className="projects-section section" aria-labelledby="projects-title">
+    <section id="projects" className="projects-section section" aria-labelledby="projects-title" suppressHydrationWarning>
       <div className="shell">
         <Reveal className="section-intro section-intro--split">
           <div>
-            <p className="section-kicker"><Layers3 aria-hidden="true" size={16} /> Projects</p>
             <h2 id="projects-title">Work built around real problems.</h2>
           </div>
           <p>
@@ -83,7 +84,6 @@ export function PracticeSection() {
     <section id="practice" className="practice-section section" aria-labelledby="practice-title">
       <div className="shell">
         <Reveal className="section-intro">
-          <p className="section-kicker"><Orbit aria-hidden="true" size={16} /> Technical range</p>
           <h2 id="practice-title">A broad stack with a consistent approach.</h2>
           <p className="practice-section__intro-note">Explore the tools behind the interfaces, products, and AI systems I build.</p>
         </Reveal>
@@ -94,7 +94,6 @@ export function PracticeSection() {
           <div className="credibility-bubble__intro">
             <Orbit aria-hidden="true" size={20} />
             <div>
-              <p className="section-kicker">Track record</p>
               <h3>Work, not claims.</h3>
             </div>
           </div>
@@ -109,29 +108,30 @@ export function PracticeSection() {
 
 export function AboutSection() {
   return (
-    <section id="about" className="about-section section" aria-labelledby="about-title">
-      <div className="shell about-layout">
-        <Reveal className="about-card">
-          <p className="section-kicker">About Laurent</p>
-          <h2 id="about-title">A developer who builds and publishes.</h2>
-          <p>
-            Laurent Maxhuni is a developer and product builder from Vushtrri, Kosovo. His work spans frontend development, AI tools, browser extensions, and experiments.
-          </p>
-          <a className="round-link round-link--light" href="#contact">Get in touch <ArrowUpRight aria-hidden="true" size={17} /></a>
-        </Reveal>
-        <Reveal className="awards-card">
-          <p className="section-kicker">Competition record</p>
-          <ul>
-            {awards.map((award) => (
-              <li key={`${award.year}-${award.title}`}>
-                <span>{award.year}</span>
-                <strong>{award.title}</strong>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      </div>
-    </section>
+    <>
+      <section id="about" className="about-section section" aria-labelledby="about-title">
+        <div className="shell about-layout">
+          <Reveal className="about-card">
+            <h2 id="about-title">A developer who builds and publishes.</h2>
+            <p>
+              I&apos;m a developer and product builder from Vushtrri, Kosovo. I work across frontend development, AI tools, browser extensions, and experiments.
+            </p>
+            <a className="round-link round-link--light" href="#contact">Get in touch <ArrowUpRight aria-hidden="true" size={17} /></a>
+          </Reveal>
+        </div>
+      </section>
+      <section id="competition" className="competition-section section" aria-labelledby="competition-record-title">
+        <div className="shell">
+          <Reveal className="competition-record">
+            <div className="competition-record__header">
+              <h2 id="competition-record-title">Competition record</h2>
+              <p className="competition-record__note">A compact record of the physics competitions I entered.</p>
+            </div>
+            <CompetitionTimeline awards={awards} />
+          </Reveal>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -148,7 +148,6 @@ export function ContactSection() {
           <div className="contact-orbit__globe" aria-hidden="true">
             <GlobeStudy opacity={0.78} brightness={1.04} />
           </div>
-          <p className="section-kicker">Contact</p>
           <h2 id="contact-title">Let&apos;s talk about the work.</h2>
           <p>Working on a product, an idea, or an interface that needs attention?</p>
           <a className="blue-button blue-button--large" href={primaryHref} target={site.contactEmail ? undefined : "_blank"} rel={site.contactEmail ? undefined : "noreferrer"}>

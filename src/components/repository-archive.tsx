@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Code2, Search } from "lucide-react";
+import { ArrowUpRight, Search } from "lucide-react";
 
 import { projects, type Project } from "@/content/portfolio";
 
@@ -18,11 +18,11 @@ export default function RepositoryArchive({ repositories }: RepositoryArchivePro
     return repositories.filter((repo) => repo.title.toLowerCase().includes(normalized));
   }, [query, repositories]);
 
+  // Proton Pass can annotate form ancestors before React hydrates this client component.
   return (
-    <section className="repo-archive" aria-labelledby="repository-archive-title">
+    <section className="repo-archive" aria-labelledby="repository-archive-title" suppressHydrationWarning>
       <div className="repo-archive__head">
         <div>
-          <p className="section-kicker"><Code2 aria-hidden="true" size={16} /> Public repositories</p>
           <h3 id="repository-archive-title">Repositories with the context to inspect them.</h3>
         </div>
         <label className="repo-search">
@@ -33,6 +33,7 @@ export default function RepositoryArchive({ repositories }: RepositoryArchivePro
             placeholder="Search repositories..."
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            suppressHydrationWarning
           />
         </label>
       </div>
