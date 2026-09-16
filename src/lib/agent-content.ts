@@ -1,5 +1,5 @@
 import { capabilities, getProjectBySlug, projects, site } from "../content/portfolio";
-import { CORE_SITE_PATHS, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
+import { INDEXABLE_SITE_PATHS, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
 
 const developerResources = [
   ["My developer portal", "/developers", "Human-readable integration and discovery guide."],
@@ -18,7 +18,7 @@ function projectLines() {
   return projects
     .map((project) => {
       const links = project.links.map((link) => `[${link.label}](${link.href})`).join(" · ");
-      return `- **${project.title}** — ${project.summary} Tags: ${project.tags.join(", ")}. ${links}`;
+      return `- [**${project.title}**](${absoluteUrl(`/projects/${project.id}`)}) — ${project.summary} Tags: ${project.tags.join(", ")}. ${links}`;
     })
     .join("\n");
 }
@@ -232,4 +232,4 @@ export function markdownForPath(pathname: string) {
   }
 }
 
-export { CORE_SITE_PATHS, developerResources };
+export { INDEXABLE_SITE_PATHS, developerResources };

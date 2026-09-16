@@ -4,11 +4,14 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
 
+import JsonLd from "@/components/json-ld";
 import Navbar from "@/components/navbar";
 import SiteFooter from "@/components/site-footer";
 import { Starfield } from "@/components/ui/starfield-1";
 import { getProjectBySlug, projects } from "@/content/portfolio";
-import { absoluteUrl, SITE_NAME, SITE_OG_IMAGE, SITE_URL } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, SITE_OG_IMAGE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
+import { projectStructuredData } from "@/lib/structured-data";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -25,27 +28,13 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
   const pathname = `/projects/${project.id}`;
   const image = project.screenshots[0]?.src ?? project.artwork?.src ?? SITE_OG_IMAGE;
-  const title = `${project.title} project`;
-
-  return {
-    metadataBase: new URL(SITE_URL),
-    title,
+  return pageMetadata({
+    title: `${project.title} — ${project.seoTitle} | ${SITE_NAME}`,
     description: project.summary,
-    alternates: { canonical: pathname },
-    openGraph: {
-      type: "website",
-      url: pathname,
-      title: `${title} | ${SITE_NAME}`,
-      description: project.summary,
-      images: [{ url: image, alt: project.screenshots[0]?.alt ?? project.artwork?.alt ?? `${project.title} project` }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${title} | ${SITE_NAME}`,
-      description: project.summary,
-      images: [image],
-    },
-  };
+    pathname,
+    image,
+    imageAlt: project.screenshots[0]?.alt ?? project.artwork?.alt ?? `${project.title} project`,
+  });
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
@@ -55,19 +44,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   const image = project.screenshots[0] ?? project.artwork;
   const canonicalUrl = absoluteUrl(`/projects/${project.id}`);
-  const schemaType = project.kind === "product" ? "SoftwareApplication" : "SoftwareSourceCode";
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": schemaType,
-    "@id": `${canonicalUrl}#project`,
-    name: project.title,
-    description: project.summary,
-    url: canonicalUrl,
-    image: image ? [new URL(image.src, SITE_URL).toString()] : undefined,
-    author: { "@id": `${absoluteUrl("/")}#person` },
-    keywords: project.tags.join(", "),
-    ...(project.kind === "product" ? { applicationCategory: "WebApplication", operatingSystem: "Web Browser" } : { codeRepository: project.links.find((link) => link.label.includes("repository"))?.href }),
-  };
+  const jsonLd = projectStructuredData(project, canonicalUrl);
 
   return (
     <>
@@ -87,6 +64,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               </nav>
               <h1 id="project-title">{project.title}</h1>
               <p className="project-case__lede">{project.summary}</p>
+              <p className="project-case__creator">Built by Laurent Maxhuni, a full-stack developer and AI builder from Vushtrri, Kosovo. <Link href="/about">About Laurent Maxhuni</Link></p>
               <div className="project-case__actions">
                 <a className="blue-button" href={project.links[0]?.href} target="_blank" rel="noreferrer">
                   {project.links[0]?.label ?? "Open project"} <ArrowUpRight aria-hidden="true" size={18} />
@@ -135,7 +113,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
       </main>
       <SiteFooter />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <JsonLd data={jsonLd} />
     </>
   );
 }

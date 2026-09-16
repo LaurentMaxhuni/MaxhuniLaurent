@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import BlackHoleHeroSection from "@/components/blackhole-hero-section";
+import { PERSON } from "@/lib/site";
 
 export default function HeroSection() {
   return (
@@ -20,7 +21,7 @@ export default function HeroSection() {
         <div className="hero__copy">
           <h1 id="hero-title">Ideas deserve their own orbit.</h1>
           <p>
-            I build web products, AI tools, and browser experiments with clear interfaces and practical details.
+            I&apos;m {PERSON.name}, a {PERSON.role} from {PERSON.location}. I build {PERSON.work}.
           </p>
           <div className="hero__actions">
             <a className="blue-button" href="#projects">

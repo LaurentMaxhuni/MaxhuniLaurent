@@ -13,6 +13,11 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function getJsonLdDocuments(html) {
+  return [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)]
+    .map((match) => JSON.parse(match[1]));
+}
+
 async function waitForServer() {
   const deadline = Date.now() + 45_000;
   let lastError;
@@ -121,10 +126,16 @@ test("agent discovery files and developer resources are public and well formed",
   const sitemapBody = await sitemap.text();
   assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/developers`));
   assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/projects/promptify`));
-  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/llms\\.txt`));
-  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/openapi\\.json`));
+  assert.doesNotMatch(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/llms\\.txt`));
+  assert.doesNotMatch(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/openapi\\.json`));
 
-  const sitemapUrls = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
+  const sitemapLocs = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+  const homepage = await request("/", { headers: { Accept: "text/html" } });
+  const homepageCanonical = (await homepage.text()).match(/<link rel="canonical" href="([^"]+)"/i)?.[1];
+  const sitemapHomepage = sitemapLocs.find((url) => new URL(url).pathname === "/");
+  assert.equal(new URL(sitemapHomepage).origin, new URL(homepageCanonical).origin, "root canonical origin matches sitemap");
+
+  const sitemapUrls = sitemapLocs.map((url) => new URL(url).pathname);
   for (const pathname of sitemapUrls) {
     const response = await request(pathname);
     assert.equal(response.status, 200, `sitemap URL ${pathname}`);
@@ -274,6 +285,7 @@ test("homepage exposes canonical, Open Graph, and JSON-LD identity data", async 
   const html = await response.text();
   assert.match(html, new RegExp(`rel="canonical" href="${escapedExpectedSiteUrl}`));
   assert.match(html, /property="og:type" content="website"/);
+  assert.match(html, /property="og:site_name" content="Laurent Maxhuni"/);
   assert.match(html, /property="og:image"/);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
   assert.match(html, /rel="manifest" href="\/manifest\.webmanifest"/);
@@ -286,6 +298,54 @@ test("homepage exposes canonical, Open Graph, and JSON-LD identity data", async 
   assert.match(html, /"@type":"PostalAddress"/);
   assert.match(html, new RegExp(`"@id":"${escapedExpectedSiteUrl}/#person"`));
   assert.match(html, new RegExp(`"@id":"${escapedExpectedSiteUrl}/#website"`));
+});
+
+test("homepage and About establish one visible Laurent Maxhuni entity", async () => {
+  const [homeResponse, aboutResponse] = await Promise.all([
+    request("/", { headers: { Accept: "text/html" } }),
+    request("/about", { headers: { Accept: "text/html" } }),
+  ]);
+  const homeHtml = await homeResponse.text();
+  const aboutHtml = await aboutResponse.text();
+  const homeText = homeHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "").replace(/<[^>]+>/g, " ");
+  const aboutText = aboutHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "").replace(/<[^>]+>/g, " ");
+
+  assert.match(homeText, /Laurent Maxhuni/);
+  assert.match(homeText, /15-year-old/);
+  assert.match(homeText, /full-stack developer/i);
+  assert.match(homeText, /AI builder/i);
+  assert.match(homeText, /Vushtrri, Kosovo/);
+  assert.match(aboutText, /Laurent Maxhuni/);
+  assert.match(aboutText, /15-year-old/);
+  assert.match(aboutText, /full-stack developer/i);
+  assert.match(aboutText, /AI builder/i);
+  assert.match(aboutText, /web applications/i);
+  assert.match(aboutText, /developer tools/i);
+  assert.match(aboutText, /open-source software/i);
+
+  const homeGraph = getJsonLdDocuments(homeHtml)[0];
+  const aboutGraph = getJsonLdDocuments(aboutHtml)[0];
+  const homePerson = homeGraph["@graph"].find((node) => node["@type"] === "Person");
+  const profile = aboutGraph["@graph"].find((node) => node["@type"] === "ProfilePage");
+  const aboutPerson = aboutGraph["@graph"].find((node) => node["@type"] === "Person");
+
+  assert.equal(homePerson["@id"], `${expectedSiteUrl}/#person`);
+  assert.equal(profile.mainEntity["@id"], homePerson["@id"]);
+  assert.equal(aboutPerson["@id"], homePerson["@id"]);
+  assert.match(homePerson.description, /15-year-old/);
+  assert.doesNotMatch(JSON.stringify(homeGraph), /birthDate/);
+  assert.ok(homePerson.sameAs.includes("https://github.com/LaurentMaxhuni"));
+  assert.ok(homePerson.sameAs.includes("https://www.linkedin.com/in/laurent-maxhuni-56a394304/"));
+});
+
+test("project pages point to the shared Laurent Maxhuni creator entity", async () => {
+  for (const path of ["/projects/promptify", "/projects/ideator-dev"]) {
+    const html = await (await request(path, { headers: { Accept: "text/html" } })).text();
+    const graph = getJsonLdDocuments(html)[0];
+    assert.equal(graph.creator["@id"], `${expectedSiteUrl}/#person`, path);
+    assert.equal(graph.mainEntityOfPage["@id"], `${expectedSiteUrl}${path}`, path);
+    assert.match(html, /Built by Laurent Maxhuni/);
+  }
 });
 
 test("homepage uses the black-hole hero, places the globe in contact CTA, promotes ideator.dev, and contains no sparkle treatment", async () => {
@@ -371,6 +431,7 @@ test("important public pages have one canonical URL and complete social metadata
     assert.equal((html.match(/rel="canonical"/g) ?? []).length, 1, `${path} canonical count`);
     assert.match(html, /property="og:title"/);
     assert.match(html, /property="og:description"/);
+    assert.match(html, /property="og:site_name" content="Laurent Maxhuni"/);
     assert.match(html, /property="og:image"/);
     assert.match(html, /name="twitter:card" content="summary_large_image"/);
     assert.doesNotMatch(html, /name="robots" content="noindex/);
@@ -426,6 +487,13 @@ test("Search Console verification has a documented build-time configuration path
   assert.match(siteConfig, /process\.env\.NEXT_PUBLIC_SITE_URL/);
   assert.match(payloadConfig, /serverURL: SITE_URL/);
   assert.match(envExample, /^GOOGLE_SITE_VERIFICATION=your-google-search-console-token$/m);
+});
+
+test("preview and Markdown alternates use the production canonical origin", async () => {
+  const proxy = await readFile(new URL("../src/proxy.ts", import.meta.url), "utf8");
+  assert.match(proxy, /import \{ absoluteUrl, SITE_URL \} from "@\/lib\/site"/);
+  assert.doesNotMatch(proxy, /request\.nextUrl\.origin/);
+  assert.match(proxy, /X-Robots-Tag/);
 });
 
 test("blog posts retain article metadata, structured data, and an H1-to-H2 content hierarchy", async () => {

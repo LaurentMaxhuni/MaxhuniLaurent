@@ -20,6 +20,11 @@ const serverFunction = async (args: ServerFunctionClientArgs) => {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Portfolio CMS",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
 };
 
 export default function PayloadLayout({ children }: { children: React.ReactNode }) {

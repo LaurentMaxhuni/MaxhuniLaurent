@@ -85,7 +85,7 @@ export function PracticeSection() {
       <div className="shell">
         <Reveal className="section-intro">
           <h2 id="practice-title">A broad stack with a consistent approach.</h2>
-          <p className="practice-section__intro-note">Explore the tools behind the interfaces, products, and AI systems I build.</p>
+          <p className="practice-section__intro-note">I work with TypeScript, React, Next.js, Node.js, Python, PostgreSQL, and AI/LLM APIs to build useful interfaces, products, and developer tools.</p>
         </Reveal>
         <Reveal className="practice-orbit">
           <OrbitingSkills />
