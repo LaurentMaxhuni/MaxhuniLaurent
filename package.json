@@ -9,6 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:agent-readiness": "node --test tests/agent-readiness.test.mjs",
+    "test:blog-publication": "node --test tests/blog-publication.test.mjs",
+    "import:core-posts": "payload run scripts/import-core-posts.ts",
     "payload": "payload"
   },
   "dependencies": {

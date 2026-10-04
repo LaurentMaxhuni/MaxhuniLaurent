@@ -31,7 +31,17 @@ Payload’s development database push is enabled outside production. Use a dispo
 
 ## Blog workflow
 
-Posts can be managed in Payload at `/admin`. Authors can save incomplete Markdown drafts, then publish them when ready. The three core notes are also checked into `src/content/posts.ts`, so the public archive stays available before a database is configured; published CMS records merge with that fallback and override a matching slug. Only published posts are available at `/blog` and `/blog/[slug]`.
+Posts can be managed in Payload at `/admin`; authors can save Markdown drafts, review their sources, and publish them when ready. Three existing articles are also checked into `src/content/posts.ts` so the archive remains available when Payload is empty or offline. A published Payload article with the same slug replaces its built-in copy.
+
+To stage the starter notes as drafts, point `DATABASE_URI` at a disposable database or Neon branch, apply the current migrations, then run:
+
+```bash
+pnpm import:core-posts
+```
+
+The import preserves the source slugs, uploads the covers, creates drafts, and skips a slug that already exists without changing it. Review each imported article and its sources in Payload before publishing. Re-running the command is safe.
+
+The archive requests ten posts at a time and uses numbered URLs such as `/blog?page=2`. The archive, post pages, API, MCP tool, sitemap, and Markdown archive use the same merged list. Published Payload articles replace built-in copies by slug; drafts do not. Drafts and unpublished posts are excluded from public outputs.
 
 Markdown supports GitHub-flavored tables, task lists, and fenced code blocks. Raw HTML is intentionally not rendered. Optional cover images come from the `media` collection, where alt text is required.
 

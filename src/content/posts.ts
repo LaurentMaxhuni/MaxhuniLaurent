@@ -16,11 +16,7 @@ function editorialCover(id: number, url: string, alt: string): Media {
   };
 }
 
-/**
- * Checked-in editorial notes keep the public archive useful before Payload is
- * connected. When the CMS is configured, these records are merged with its
- * published posts in src/lib/blog.ts.
- */
+/** Existing public articles stay available when Payload is empty or unavailable. */
 export const builtInPosts: Post[] = [
   {
     id: -1001,
@@ -683,6 +679,8 @@ Once the path is working, test it on the kind of repository work you actually ca
     _status: "published",
   },
 ];
+
+export const seedPosts = builtInPosts;
 
 
 
