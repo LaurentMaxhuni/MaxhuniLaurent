@@ -37,8 +37,9 @@ const GLOBE_STUDY_SOURCE = `<!doctype html>
   let velocity = 0.13;
   let tilt = -0.32;
   let tiltVelocity = 0;
-  let zoom = 1;
-  let targetZoom = 1;
+  const initialZoom = 1;
+  let zoom = initialZoom;
+  let targetZoom = initialZoom;
   let drag = null;
   let pointer = null;
   let previous = performance.now();
@@ -204,7 +205,7 @@ const GLOBE_STUDY_SOURCE = `<!doctype html>
   canvas.addEventListener("pointercancel", () => { drag = null; });
   canvas.addEventListener("wheel", (event) => {
     event.preventDefault();
-    targetZoom = Math.max(0.85, Math.min(1.65, targetZoom * Math.exp(-event.deltaY * 0.0016)));
+    targetZoom = Math.max(Math.min(0.85, initialZoom), Math.min(1.65, targetZoom * Math.exp(-event.deltaY * 0.0016)));
   }, { passive: false });
 
   new ResizeObserver(resize).observe(canvas);
@@ -218,6 +219,7 @@ const GLOBE_STUDY_SOURCE = `<!doctype html>
 export type GlobeStudyProps = {
   mode?: "dark" | "light";
   scale?: number;
+  initialZoom?: number;
   opacity?: number;
   hue?: number;
   saturation?: number;
@@ -229,6 +231,7 @@ export type GlobeStudyProps = {
 export const GLOBE_STUDY_DEFAULTS = {
   mode: "dark",
   scale: 1,
+  initialZoom: 1,
   opacity: 1,
   hue: 0,
   saturation: 1,
@@ -239,11 +242,12 @@ function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(maximum, Math.max(minimum, value));
 }
 
-function focusedDocument(mode: "dark" | "light") {
+function focusedDocument(mode: "dark" | "light", initialZoom: number) {
   const background = mode === "light" ? "#f3f5f8" : "transparent";
   const ink = mode === "light" ? "38,40,48" : "226,228,233";
 
   return GLOBE_STUDY_SOURCE
+    .replace("const initialZoom = 1;", `const initialZoom = ${initialZoom};`)
     .replace("background: transparent;", `background: ${background};`)
     .replaceAll("226,228,233", ink)
     .replaceAll("242,243,245", mode === "light" ? "23,25,34" : "242,243,245");
@@ -252,6 +256,7 @@ function focusedDocument(mode: "dark" | "light") {
 export default function GlobeStudy({
   mode = GLOBE_STUDY_DEFAULTS.mode,
   scale = GLOBE_STUDY_DEFAULTS.scale,
+  initialZoom = GLOBE_STUDY_DEFAULTS.initialZoom,
   opacity = GLOBE_STUDY_DEFAULTS.opacity,
   hue = GLOBE_STUDY_DEFAULTS.hue,
   saturation = GLOBE_STUDY_DEFAULTS.saturation,
@@ -260,7 +265,8 @@ export default function GlobeStudy({
   style,
 }: GlobeStudyProps) {
   const safeMode = mode === "light" ? "light" : "dark";
-  const document = useMemo(() => focusedDocument(safeMode), [safeMode]);
+  const boundedInitialZoom = Number.isFinite(initialZoom) ? clamp(initialZoom, 0.65, 1.65) : 1;
+  const document = useMemo(() => focusedDocument(safeMode, boundedInitialZoom), [safeMode, boundedInitialZoom]);
   const boundedScale = clamp(scale, 0.65, 1.5);
   const boundedOpacity = clamp(opacity, 0.1, 1);
   const boundedHue = clamp(hue, -180, 180);
@@ -281,6 +287,7 @@ export default function GlobeStudy({
         className="text-path-study-frame"
         data-mode={safeMode}
         title="Globe interactive canvas study"
+        loading="lazy"
         sandbox="allow-scripts"
         srcDoc={document}
         style={{

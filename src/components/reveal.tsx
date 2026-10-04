@@ -35,7 +35,7 @@ export default function Reveal({ children, className = "", ...props }: RevealPro
   }, []);
 
   return (
-    <div {...props} ref={ref} className={`reveal ${ready ? "reveal--ready" : ""} ${className}`}>
+    <div {...props} ref={ref} className={`reveal ${className}`}>
       {children}
     </div>
   );

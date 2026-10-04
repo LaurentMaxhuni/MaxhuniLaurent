@@ -1,37 +1,10 @@
-import Link from "next/link";
-import Image from "next/image";
 import { ArrowUpRight, Code2, MessagesSquare, Orbit } from "lucide-react";
 import CompetitionTimeline from "@/components/competition-timeline";
 import OrbitingSkills from "@/components/orbiting-skills";
-import RepositoryArchive from "@/components/repository-archive";
+import ProjectLanes from "@/components/project-lanes";
 import Reveal from "@/components/reveal";
 import GlobeStudy from "@/components/ui/globe-study";
-import { awards, credibilityNotes, projects, site, type Project } from "@/content/portfolio";
-
-function ProjectMarqueeCard({ project, duplicate = false }: { project: Project; duplicate?: boolean }) {
-  const asset = project.screenshots[0] ?? project.artwork;
-
-  return (
-    <Link
-      className="project-marquee__card"
-      href={`/projects/${project.id}`}
-      tabIndex={duplicate ? -1 : undefined}
-      aria-hidden={duplicate || undefined}
-    >
-      <span className="project-marquee__media">
-        {asset ? <Image src={asset.src} alt={duplicate ? "" : asset.alt} fill sizes="(max-width: 699px) 78vw, 360px" /> : null}
-        <span className="project-marquee__shade" aria-hidden="true" />
-      </span>
-      <span className="project-marquee__meta">
-        <span>{project.kind === "product" ? "live build" : "repository"}</span>
-        <span>{String(projects.indexOf(project) + 1).padStart(2, "0")}</span>
-      </span>
-      <span className="project-marquee__title">{project.title}</span>
-      <span className="project-marquee__summary">{project.summary}</span>
-      <span className="project-marquee__arrow" aria-hidden="true"><ArrowUpRight size={18} /></span>
-    </Link>
-  );
-}
+import { awards, credibilityNotes, projects, site } from "@/content/portfolio";
 
 export function ProjectsSection() {
   const featuredProjects = projects.filter((project) => project.kind === "product" || project.id === "ideator-dev");
@@ -41,39 +14,19 @@ export function ProjectsSection() {
     mixedProjects.filter((_, index) => index % 2 === 0),
     mixedProjects.filter((_, index) => index % 2 !== 0),
   ];
-  const repositoryList = projects.filter((project) => project.kind === "repository" && project.id !== "ideator-dev");
-
-  // Proton Pass annotates the section containing the repository search field before React hydrates.
   return (
-    <section id="projects" className="projects-section section" aria-labelledby="projects-title" suppressHydrationWarning>
+    <section id="projects" className="projects-section section" aria-labelledby="projects-title">
       <div className="shell">
         <Reveal className="section-intro section-intro--split">
           <div>
             <h2 id="projects-title">Work built around real problems.</h2>
           </div>
-          <p>
-            The full project line-up is mixed across two steady lanes. Pause a lane to choose a project, then use the archive to inspect the details.
-          </p>
+          <p>Browse the full line-up across two lanes.</p>
         </Reveal>
 
-        <div className="project-marquees" role="region" aria-label="Selected projects">
-          {marqueeRows.map((row, rowIndex) => (
-            <Reveal key={rowIndex} className={`project-marquee project-marquee--${rowIndex === 0 ? "forward" : "reverse"}`}>
-              <div className="project-marquee__viewport">
-                <div className="project-marquee__track">
-                  <div className="project-marquee__set">
-                    {row.map((project) => <ProjectMarqueeCard key={project.id} project={project} />)}
-                  </div>
-                  <div className="project-marquee__set" aria-hidden="true">
-                    {row.map((project) => <ProjectMarqueeCard key={`${project.id}-duplicate`} project={project} duplicate />)}
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        <RepositoryArchive repositories={repositoryList} />
+        <Reveal className="project-lanes-reveal">
+          <ProjectLanes rows={marqueeRows} />
+        </Reveal>
       </div>
     </section>
   );
@@ -125,7 +78,7 @@ export function AboutSection() {
           <Reveal className="competition-record">
             <div className="competition-record__header">
               <h2 id="competition-record-title">Competition record</h2>
-              <p className="competition-record__note">A compact record of the physics competitions I entered.</p>
+              <p className="competition-record__note">Results from physics and mathematics competitions.</p>
             </div>
             <CompetitionTimeline awards={awards} />
           </Reveal>
@@ -149,7 +102,7 @@ export function ContactSection() {
             <GlobeStudy opacity={0.78} brightness={1.04} />
           </div>
           <h2 id="contact-title">Let&apos;s talk about the work.</h2>
-          <p>Working on a product, an idea, or an interface that needs attention?</p>
+          <p>Share what you&apos;re building, what you want to achieve, and when you&apos;re hoping to make it happen.</p>
           <a className="blue-button blue-button--large" href={primaryHref} target={site.contactEmail ? undefined : "_blank"} rel={site.contactEmail ? undefined : "noreferrer"}>
             {primaryLabel} <ArrowUpRight aria-hidden="true" size={20} />
           </a>

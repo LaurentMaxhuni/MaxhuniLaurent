@@ -78,7 +78,7 @@ export default function OrbitingSkills() {
     <OrbitingCircles02
       className="orbiting-skills"
       aria-label="Technical range shown as orbiting skills"
-      center={<GlobeStudy opacity={0.82} brightness={1.06} />}
+      center={<GlobeStudy initialZoom={0.82} opacity={0.82} brightness={1.06} />}
       rings={rings}
     />
   );

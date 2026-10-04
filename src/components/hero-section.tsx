@@ -20,9 +20,11 @@ export default function HeroSection() {
       <div className="shell hero__layout">
         <div className="hero__copy">
           <h1 id="hero-title">Ideas deserve their own orbit.</h1>
-          <p>
-            I&apos;m {PERSON.name}, a {PERSON.role} from {PERSON.location}. I build {PERSON.work}.
-          </p>
+          <p className="hero__intro">I&apos;m {PERSON.name}. I build practical software, AI tools, and developer resources.</p>
+          <ul className="hero__details" aria-label="About me">
+            <li>{PERSON.role}</li>
+            <li>{PERSON.location}</li>
+          </ul>
           <div className="hero__actions">
             <a className="blue-button" href="#projects">
               See the work <ArrowDown aria-hidden="true" size={18} />
