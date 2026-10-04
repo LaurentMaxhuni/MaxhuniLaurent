@@ -93,3 +93,31 @@ When a custom domain is live:
 8. Update GitHub, LinkedIn, and other verified external profiles.
 9. Add and verify the new Search Console property and submit its sitemap.
 10. Monitor indexing, selected canonicals, impressions, and query migration from both properties.
+
+## Re-check — 2026-09-25
+
+The portfolio improvement plan was applied to the checkout. CMS publication state is now the only public blog source; checked-in articles can be imported idempotently as drafts, without using their source dates as approval. CMS failure paths are explicit, paginated article collection covers beyond Payload's first 100 records, and project sharing uses generated 1200×630 cards. Project browsing keeps the two moving lanes and persistent pause control; the extra static archive was removed after review. Project case studies and status labels remain. SEO metadata, About identity data, blog attribution, and the sitemap/Markdown/API outage paths were updated. The README includes the draft import workflow.
+
+Verification completed:
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm build`, and `pnpm test:blog-publication` pass; the publication suite has 5 passing tests.
+- `pnpm test:agent-readiness` passes all 23 checks, including published article metadata, server-rendered content without JavaScript, generated share-card dimensions, and unknown-project 404 behavior.
+- Local browser layout was checked at 390, 768, and 1440 CSS pixels. The archive reflows to one, two, and three columns, respectively, with no horizontal page overflow. A stricter 320 CSS-pixel layout check also has no document overflow after containing the competition timeline reveal.
+- Browser interaction checks covered both lane pause states, the mobile navigation, Escape to close, and Space-key activation with a visible focus outline. The homepage has only the moving project lanes.
+- The browser rendered the hero WebGL canvas without a fallback state; source review confirms unsupported/build-failure fallback, off-screen render gating, and a lazy-loaded globe iframe.
+- The no-database path was exercised by the readiness suite. Public API, sitemap, and Markdown routes return retryable 503 responses when the CMS is unavailable.
+- The local `/blog` route returns HTTP 200 and renders its empty state because the configured CMS query found zero published posts. The checked-in seed articles were not published.
+- Development startup prompted for a Payload schema push. The server was stopped without applying the prompt; the rebuilt production server serves the blog without that development prompt.
+
+Remaining verification limits:
+
+- The connected browser reported `prefers-reduced-motion: false`, and its controls do not expose media emulation. The reduced-motion implementation was reviewed in source (stationary scrollable lanes, duplicate cards removed, and reveal transitions disabled), but its rendered state was not live-emulated.
+- The browser could not emulate a coarse pointer, so touch swipe behavior was checked in the CSS/source rather than with touch input. The previous report says Google font fetching was removed; the current frontend layout still imports `Bricolage_Grotesque` and `DM_Sans` from `next/font/google`, so that earlier claim does not describe this checkout.
+- Browser zoom could not be set through the connected controls. Reflow was checked at 320 CSS pixels, but text scaling at an actual 200% browser zoom remains unverified.
+- A performance score or lab timing baseline was not captured. WebGL context loss was not forced; its fallback path was reviewed in source only.
+- The draft importer was tested against a fake Payload client, not a disposable CMS database, and it was not run against the configured CMS. Deployed routes and Search Console/Bing account data remain unverified; sitemap submission and post-release checks still require deployment and account access. No database schema changes or post publications were made.
+- The successful build still emits two non-fatal `metadataBase` warnings during special metadata/404 generation and notes that the edge runtime disables static generation for the project share-image route.
+
+## Update — 2026-10-04
+
+The blog archive now uses the three existing checked-in articles when Payload has no published copy; a published Payload post with the same slug takes precedence. The project lanes no longer show manual pause or resume controls. Competition results remain grouped by year and the timeline ends at the final result.
