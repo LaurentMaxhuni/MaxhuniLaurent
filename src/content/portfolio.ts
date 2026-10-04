@@ -29,6 +29,13 @@ export type Project = {
   links: ProjectLink[];
   artwork?: ProjectArtwork;
   screenshots: ProjectScreenshot[];
+  caseStudy?: {
+    intendedUser: string;
+    workflow: string;
+    implementation: string;
+    limitations: string;
+    evidence: string;
+  };
 };
 
 // This is a static frontend source, not a CMS. I read the project details from
@@ -61,6 +68,13 @@ export const projects: Project[] = [
     approach:
       "I built a Chrome extension that keeps prompt frameworks beside the active chat and turns rough requests into clearer instructions without a context switch.",
     status: "Live browser extension",
+    caseStudy: {
+      intendedUser: "People who use ChatGPT, Claude, Gemini, or Grok and want more structure in a prompt without leaving the conversation.",
+      workflow: "Write a rough request in a supported chat, open Promptify, choose a framework such as RACE or CREATE, then review and use the rewritten prompt.",
+      implementation: "A TypeScript Chrome extension puts prompt frameworks beside the active chat. The framework is the main interaction choice, so users can shape a prompt without copying it into a separate site.",
+      limitations: "The supported chats and available frameworks can change. The rewritten prompt is a starting point and still needs a human check; no measured improvement or adoption figures are published here.",
+      evidence: "A live product page and public source repository are linked below. The portfolio does not claim usage, conversion, or quality metrics.",
+    },
     tags: ["TypeScript", "Chrome Extensions", "AI tooling"],
     links: [
       { label: "Visit product", href: "https://promptifying.vercel.app" },
@@ -136,6 +150,13 @@ export const projects: Project[] = [
     approach:
       "I collected focused, installable workflows that spell out scope, verification, and handoff expectations for common engineering tasks.",
     status: "Open-source repository",
+    caseStudy: {
+      intendedUser: "Developers who use coding agents and want recurring work to follow a clear scope and definition of done.",
+      workflow: "Choose a task-specific skill, follow its scope and steps, run the listed verification, then use its evidence-based handoff format.",
+      implementation: "The repository packages workflows as Markdown skills with explicit scope, verification gates, and handoff expectations. It can be installed with the skills CLI.",
+      limitations: "A skill is guidance rather than an agent runtime. It must be checked against the current repository, available tools, and the agent's own capabilities; the repository does not publish adoption or time-saved metrics.",
+      evidence: "The public repository contains the installable workflow files and their stated checks. No external adoption or performance figures are claimed.",
+    },
     tags: ["AI agent skills", "developer tooling", "Markdown"],
     links: [{ label: "Open repository", href: "https://github.com/LaurentMaxhuni/agent-skills" }],
     screenshots: [
@@ -254,6 +275,13 @@ export const projects: Project[] = [
     approach:
       "I kept the image in the browser and focused the interface on one fast cutout task.",
     status: "Live web product",
+    caseStudy: {
+      intendedUser: "People who want to remove an image background while keeping the source image on their own device.",
+      workflow: "Choose or drop an image in the browser, run the cutout, inspect the result, and save the image that is produced.",
+      implementation: "The interface is organized around one cutout task, and the image processing runs in the browser so the selected image is not uploaded to a remote background-removal service.",
+      limitations: "Processing depends on the user's browser and device, and cutout quality depends on the source image. No benchmark or image-quality measurements are published here.",
+      evidence: "The linked product page describes browser-based processing and shows the image-selection flow; the public source repository is available below.",
+    },
     tags: ["TypeScript", "browser tech", "image processing"],
     links: [
       { label: "Visit product", href: "https://simplycutouts.vercel.app" },
@@ -340,13 +368,33 @@ export const credibilityNotes = [
   "Built and shipped public AI tools and browser extensions.",
   "Maintains more than 25 public GitHub repositories across frontend, backend, and experimental work.",
   "Brings mathematics and physics practice to structured problem solving.",
-  "Uses an MDX blog for case studies, technical notes, and SEO-focused writing.",
+  "Publishes Markdown field notes and technical guides alongside project work.",
 ];
 
 export const awards = [
-  { title: "1st Place, National Physics Competition", year: "2026" },
-  { title: "1st Place, Communal Physics Competition", year: "2026" },
-  { title: "3rd Place, National Physics Competition", year: "2025" },
-  { title: "1st Place, Communal Physics Competition", year: "2025" },
-  { title: "1st Place, Communal Math Olympiad", year: "2023" },
+  {
+    title: "1st Place, National Physics Competition",
+    year: "2026",
+    description: "I placed first at the national physics competition. I bring the same structured approach to the problems I work on in software.",
+  },
+  {
+    title: "1st Place, Communal Physics Competition",
+    year: "2026",
+    description: "I also took first place at the communal level in 2026. That gave me two first-place physics results in the same year.",
+  },
+  {
+    title: "3rd Place, National Physics Competition",
+    year: "2025",
+    description: "I placed third nationally in physics in 2025, before taking first place in 2026.",
+  },
+  {
+    title: "1st Place, Communal Physics Competition",
+    year: "2025",
+    description: "First place at the communal level, alongside my national third-place result. Physics is one of the ways I practice structured problem solving.",
+  },
+  {
+    title: "1st Place, Communal Math Olympiad",
+    year: "2023",
+    description: "I took first place in the communal math olympiad in 2023. That interest in mathematics carries into the software I build.",
+  },
 ];

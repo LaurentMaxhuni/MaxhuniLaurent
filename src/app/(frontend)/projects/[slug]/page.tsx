@@ -9,7 +9,7 @@ import Navbar from "@/components/navbar";
 import SiteFooter from "@/components/site-footer";
 import { Starfield } from "@/components/ui/starfield-1";
 import { getProjectBySlug, projects } from "@/content/portfolio";
-import { absoluteUrl, SITE_NAME, SITE_OG_IMAGE } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 import { projectStructuredData } from "@/lib/structured-data";
 
@@ -24,16 +24,16 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
-  if (!project) return { title: "Project not found", robots: { index: false, follow: false } };
+  if (!project) return { metadataBase: new URL(SITE_URL), title: "Project not found", robots: { index: false, follow: false } };
 
   const pathname = `/projects/${project.id}`;
-  const image = project.screenshots[0]?.src ?? project.artwork?.src ?? SITE_OG_IMAGE;
+  const image = absoluteUrl(`/projects/${project.id}/share-image`);
   return pageMetadata({
     title: `${project.title} — ${project.seoTitle} | ${SITE_NAME}`,
     description: project.summary,
     pathname,
     image,
-    imageAlt: project.screenshots[0]?.alt ?? project.artwork?.alt ?? `${project.title} project`,
+    imageAlt: `${project.title} — ${project.status}`,
   });
 }
 
@@ -42,9 +42,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const project = getProjectBySlug(slug);
   if (!project) notFound();
 
-  const image = project.screenshots[0] ?? project.artwork;
+  const images = project.screenshots.length > 0 ? project.screenshots : project.artwork ? [project.artwork] : [];
   const canonicalUrl = absoluteUrl(`/projects/${project.id}`);
   const jsonLd = projectStructuredData(project, canonicalUrl);
+  const relatedByTechnology = projects.filter(
+    (candidate) => candidate.id !== project.id && candidate.tags.some((tag) => project.tags.includes(tag)),
+  );
+  const relatedProjects = [
+    ...relatedByTechnology,
+    ...projects.filter((candidate) => candidate.id !== project.id && !relatedByTechnology.includes(candidate)),
+  ].slice(0, 3);
 
   return (
     <>
@@ -63,6 +70,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </ol>
               </nav>
               <h1 id="project-title">{project.title}</h1>
+              <p className="project-case__status">{project.status}</p>
               <p className="project-case__lede">{project.summary}</p>
               <p className="project-case__creator">Built by Laurent Maxhuni, a full-stack developer and AI builder from Vushtrri, Kosovo. <Link href="/about">About Laurent Maxhuni</Link></p>
               <div className="project-case__actions">
@@ -72,31 +80,62 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <Link className="project-case__back" href="/#projects"><ArrowLeft aria-hidden="true" size={17} /> Back to projects</Link>
               </div>
             </div>
-            {image && (
-              <figure className="project-case__visual">
-                <Image src={image.src} alt={image.alt} fill priority sizes="(min-width: 1000px) 46vw, calc(100vw - 40px)" />
-              </figure>
+            {images.length > 0 && (
+              <div className="project-case__gallery" aria-label={`${project.title} screenshots`}>
+                {images.map((image, index) => (
+                  <figure key={image.src} className="project-case__visual">
+                    <Image src={image.src} alt={image.alt} fill priority={index === 0} sizes="(min-width: 1000px) 46vw, calc(100vw - 40px)" />
+                  </figure>
+                ))}
+              </div>
             )}
           </div>
         </section>
 
         <section className="shell project-case__brief" aria-label={`${project.title} project brief`}>
           <article className="mission-card mission-card--problem" aria-label="The problem">
-            <h2>What this project is designed to make easier.</h2>
+            <h2>Problem</h2>
             <p>{project.problem}</p>
           </article>
           <article className="mission-card mission-card--approach" aria-label="My approach">
-            <h2>A deliberate route, not a feature dump.</h2>
+            <h2>Approach</h2>
             <p>{project.approach}</p>
           </article>
           <article className="mission-card mission-card--build" aria-label="What I built">
-            <h2>The tools and details behind it.</h2>
-            <p>{project.description}</p>
+            <h2>Implementation</h2>
+            <p>{project.caseStudy?.implementation ?? project.description}</p>
             <ul className="project-case__tags" aria-label={`${project.title} technologies`}>
               {project.tags.map((tag) => <li key={tag}>{tag}</li>)}
             </ul>
           </article>
         </section>
+
+        {project.caseStudy && (
+          <section className="shell project-case__study" aria-labelledby="case-study-title">
+            <div className="project-case__study-heading">
+              <span className="eyebrow">Case study</span>
+              <h2 id="case-study-title">Who it serves and how it works</h2>
+            </div>
+            <dl className="project-case__study-grid">
+              <div>
+                <dt>Intended user</dt>
+                <dd>{project.caseStudy.intendedUser}</dd>
+              </div>
+              <div>
+                <dt>Workflow</dt>
+                <dd>{project.caseStudy.workflow}</dd>
+              </div>
+              <div>
+                <dt>Limitations</dt>
+                <dd>{project.caseStudy.limitations}</dd>
+              </div>
+              <div>
+                <dt>Evidence</dt>
+                <dd>{project.caseStudy.evidence}</dd>
+              </div>
+            </dl>
+          </section>
+        )}
 
         <section className="shell project-case__links" aria-labelledby="project-links-title">
           <div>
@@ -109,6 +148,25 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               </a>
             ))}
           </div>
+        </section>
+
+        <section className="shell related-projects" aria-labelledby="related-projects-title">
+          <div className="related-projects__heading">
+            <span className="eyebrow">Keep exploring</span>
+            <h2 id="related-projects-title">Related projects</h2>
+          </div>
+          <ul>
+            {relatedProjects.map((candidate) => (
+                <li key={candidate.id}>
+                  <Link href={`/projects/${candidate.id}`}>
+                    <span>{candidate.status}</span>
+                    <strong>{candidate.title}</strong>
+                    <span>{candidate.summary}</span>
+                    <ArrowUpRight aria-hidden="true" size={17} />
+                  </Link>
+                </li>
+              ))}
+          </ul>
         </section>
 
       </main>
