@@ -1,5 +1,5 @@
 import { capabilities, getProjectBySlug, projects, site } from "../content/portfolio";
-import { INDEXABLE_SITE_PATHS, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
+import { INDEXABLE_SITE_PATHS, PERSON, SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
 
 const developerResources = [
   ["My developer portal", "/developers", "Human-readable integration and discovery guide."],
@@ -24,7 +24,7 @@ function projectLines() {
 }
 
 export const aboutCopy = [
-  "I am a developer and product builder based in Vushtrri, Kosovo. This portfolio documents the work I build and study: focused interfaces, AI-assisted tools, browser extensions, and experiments that turn technical ideas into something people can use. My work connects frontend development, backend thinking, product design, and the details needed to ship a product.",
+  `I am ${PERSON.name}, a ${PERSON.role} from ${PERSON.location}. I build ${PERSON.work}. This portfolio documents focused interfaces, AI-assisted tools, browser extensions, and experiments that turn technical ideas into something people can use. My work connects frontend development, backend thinking, product design, and the details needed to ship a product.`,
   "The project index links to live products and public repositories so you can inspect the work instead of taking a claim at face value. I also publish notes on products, interfaces, experiments, and the decisions behind them. Mathematics and physics inform my approach, with an emphasis on clear reasoning, careful iteration, and useful outcomes.",
 ].join("\n\n");
 

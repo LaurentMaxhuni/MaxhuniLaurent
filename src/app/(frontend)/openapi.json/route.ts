@@ -45,7 +45,7 @@ const deprecationHeaders = {
   },
 };
 
-const problemResponse = (description: string, includeRetryAfter = false) => ({
+const problemResponse = (description: string, retryAfterDescription?: string) => ({
   description,
   content: {
     "application/problem+json": {
@@ -55,10 +55,10 @@ const problemResponse = (description: string, includeRetryAfter = false) => ({
   headers: {
     ...rateLimitHeaders,
     ...deprecationHeaders,
-    ...(includeRetryAfter
+    ...(retryAfterDescription
       ? {
           "Retry-After": {
-            description: "Seconds to wait before retrying after a rate-limit response.",
+            description: retryAfterDescription,
             schema: { type: "integer", minimum: 1, example: API_RATE_WINDOW_SECONDS },
           },
         }
@@ -115,7 +115,8 @@ function listPostsOperation(operationId: string, summary: string, description: s
         "200": postsResponse,
         "400": problemResponse("The request is invalid, including an unsupported API version."),
         "404": problemResponse("The requested public resource does not exist."),
-        "429": problemResponse("The client exceeded the public API rate limit.", true),
+        "429": problemResponse("The client exceeded the public API rate limit.", "Seconds to wait before the rate-limit window resets."),
+        "503": problemResponse("Published posts are temporarily unavailable while the content service recovers.", "Seconds to wait before retrying the temporary content-service outage."),
         "500": problemResponse("The API or its content service could not complete the request."),
       },
     },
@@ -129,8 +130,8 @@ export function GET() {
     info: {
       title: `${SITE_NAME} Portfolio API`,
       version: `v${API_VERSION}.0.0`,
-      description:
-        `Read-only public API for published posts in my signal archive. The canonical endpoint is versioned at /api/v${API_VERSION}/posts. The unversioned /api/posts URL remains a compatibility alias. Responses use a typed RFC 9457-style application/problem+json error object with a machine-readable code and human-readable message. Rate limits are communicated with RateLimit-Policy, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, and RateLimit headers; 429 responses also include Retry-After. Future endpoint deprecations use the RFC 9745 Deprecation structured date and RFC 8594 Sunset HTTP-date, with a migration timeline published in the developer API guide.`,
+        description:
+        `Read-only public API for published posts in my signal archive. The canonical endpoint is versioned at /api/v${API_VERSION}/posts. The unversioned /api/posts URL remains a compatibility alias. Responses use a typed RFC 9457-style application/problem+json error object with a machine-readable code and human-readable message. Rate limits are communicated with RateLimit-Policy, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, and RateLimit headers; 429 responses include Retry-After, and a temporary content-service outage returns 503 with retry guidance. Future endpoint deprecations use the RFC 9745 Deprecation structured date and RFC 8594 Sunset HTTP-date, with a migration timeline published in the developer API guide.`,
       contact: {
         name: `${SITE_NAME} contact guidance`,
         url: absoluteUrl("/contact"),

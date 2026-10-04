@@ -10,8 +10,9 @@ function appendMarkdownAlternate(headers: Headers, request: NextRequest) {
   headers.set("Link", existing ? `${existing}, ${alternate}` : alternate);
 }
 
-function appendDeploymentRobots(headers: Headers) {
-  if (process.env.VERCEL_ENV === "preview" && SITE_URL) {
+function appendRobots(headers: Headers, pathname: string) {
+  const isDeveloperResource = /^\/(?:agent-markdown\/)?developers(?:\/|\.md$|$)/.test(pathname);
+  if (isDeveloperResource || (process.env.VERCEL_ENV === "preview" && SITE_URL)) {
     headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
   }
 }
@@ -21,7 +22,7 @@ function markdownRewrite(request: NextRequest, pathname: string) {
   url.pathname = `/agent-markdown${pathname === "/" ? "/" : pathname}`;
   const rewritten = NextResponse.rewrite(url);
   appendVaryAccept(rewritten.headers);
-  appendDeploymentRobots(rewritten.headers);
+  appendRobots(rewritten.headers, pathname);
   return rewritten;
 }
 
@@ -48,7 +49,7 @@ export function proxy(request: NextRequest) {
 
   if (isMachineReadablePath(pathname)) {
     const response = NextResponse.next();
-    appendDeploymentRobots(response.headers);
+    appendRobots(response.headers, pathname);
     return response;
   }
 
@@ -63,14 +64,14 @@ export function proxy(request: NextRequest) {
         "Vary": "Accept",
       },
     });
-    appendDeploymentRobots(response.headers);
+    appendRobots(response.headers, pathname);
     return response;
   }
 
   const response = NextResponse.next();
   appendVaryAccept(response.headers);
   appendMarkdownAlternate(response.headers, request);
-  appendDeploymentRobots(response.headers);
+  appendRobots(response.headers, pathname);
   return response;
 }
 

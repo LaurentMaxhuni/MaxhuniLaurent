@@ -20,13 +20,12 @@ export default function NotFound() {
         <section className="shell not-found-page__card" aria-labelledby="not-found-title">
           <h1 id="not-found-title">This page does not exist.</h1>
           <p>
-            The page you requested is not part of my public portfolio. Start from the project index, blog, or developer resources and follow a published link.
+            The page you requested is not part of my public portfolio. Start from the project index or blog and follow a published link.
           </p>
           <div className="not-found-page__links">
             <Link className="blue-button" href="/">Portfolio home</Link>
-            <Link className="round-link" href="/developers">Developer resources</Link>
-            <a className="round-link" href="/llms.txt">LLMs index</a>
-            <a className="round-link" href="/sitemap.xml">XML sitemap</a>
+            <Link className="round-link" href="/#projects">Projects</Link>
+            <Link className="round-link" href="/blog">Blog</Link>
           </div>
         </section>
       </main>

@@ -20,9 +20,6 @@ function getSiteUrl() {
 export const SITE_URL = getSiteUrl();
 export const SITE_ROOT_URL = new URL("/", SITE_URL).toString();
 export const SITE_NAME = "Laurent Maxhuni";
-export const SITE_DESCRIPTION =
-  "My portfolio, public project index, and developer resources.";
-export const SITE_OG_IMAGE = "/opengraph-image";
 export const SITE_SAME_AS = [
   "https://github.com/LaurentMaxhuni",
   "https://www.linkedin.com/in/laurent-maxhuni-56a394304/",
@@ -72,11 +69,6 @@ export const INDEXABLE_SITE_PATHS = [
   "/contact",
   "/privacy",
   "/blog",
-  "/developers",
-  "/developers/api",
-  "/developers/api/versioning",
-  "/developers/auth",
-  "/developers/mcp",
 ] as const;
 
 export function absoluteUrl(pathname = "/") {

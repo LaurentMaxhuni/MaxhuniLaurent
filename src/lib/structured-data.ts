@@ -40,7 +40,7 @@ export function homepageStructuredData() {
         "@id": PORTFOLIO_ID,
         name: `${SITE_NAME} Portfolio`,
         url: SITE_ROOT_URL,
-        description: "The public developer portfolio and project archive for Laurent Maxhuni.",
+        description: "The public developer portfolio and selected projects for Laurent Maxhuni.",
         founder: { "@id": PERSON_ID },
         address: {
           "@type": "PostalAddress",

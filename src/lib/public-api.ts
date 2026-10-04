@@ -1,4 +1,4 @@
-import { getPublishedPosts } from "./blog";
+import { getPublishedPosts, PublishedPostsUnavailableError } from "./blog";
 import { absoluteUrl } from "./site";
 
 export const API_VERSION = "1";
@@ -137,7 +137,18 @@ async function normalizePostsSuccess(request: Request, snapshot: RateLimitSnapsh
     headers.set("Cache-Control", "private, no-store");
     headers.set("Content-Type", "application/json; charset=utf-8");
     return Response.json(normalized, { status: 200, headers });
-  } catch {
+  } catch (error) {
+    if (error instanceof PublishedPostsUnavailableError) {
+      return problemResponse(
+        request,
+        503,
+        "posts_unavailable",
+        "Published posts are temporarily unavailable. Retry after the content service recovers.",
+        snapshot,
+        60,
+      );
+    }
+
     return problemResponse(
       request,
       500,
@@ -156,6 +167,8 @@ function statusTitle(status: number) {
       return "Not Found";
     case 429:
       return "Too Many Requests";
+    case 503:
+      return "Service Unavailable";
     case 500:
       return "Internal Server Error";
     default:
@@ -169,6 +182,7 @@ function problemResponse(
   code: string,
   message: string,
   snapshot: RateLimitSnapshot,
+  retryAfterSeconds?: number,
 ) {
   const safeStatus = status >= 400 && status <= 599 ? status : 500;
   const problem: ProblemDetails = {
@@ -188,6 +202,9 @@ function problemResponse(
 
   if (safeStatus === 429) {
     headers.set("Retry-After", String(Math.max(1, Math.ceil((snapshot.resetAt - Date.now()) / 1000))));
+  }
+  if (safeStatus === 503 && retryAfterSeconds) {
+    headers.set("Retry-After", String(retryAfterSeconds));
   }
 
   return Response.json(problem, { status: safeStatus, headers });
@@ -223,7 +240,7 @@ export async function handlePostsGet(request: Request) {
   }
 
   try {
-    return normalizePostsSuccess(request, snapshot);
+    return await normalizePostsSuccess(request, snapshot);
   } catch {
     return problemResponse(
       request,

@@ -1,5 +1,4 @@
 import { capabilities, projects } from "@/content/portfolio";
-import { developerResources } from "@/lib/agent-content";
 
 /**
  * A compact, semantic fallback for crawlers and people browsing with scripts
@@ -13,7 +12,7 @@ export default function AgentReadableSummary() {
       <section className="agent-readable-summary" aria-labelledby="agent-readable-summary-title" data-agent-label="Laurent Maxhuni developer portfolio">
         <h2 id="agent-readable-summary-title">My developer portfolio</h2>
         <p>
-          I&apos;m a developer and product builder based in Vushtrri, Kosovo. This portfolio documents the web products, AI tools, browser extensions, open-source repositories, and product experiments I build. Use the project pages and primary repository links to inspect the work, read the public signal archive, or choose a developer resource for an automated integration.
+          I&apos;m a developer and product builder based in Vushtrri, Kosovo. This portfolio documents the web products, AI tools, browser extensions, open-source repositories, and product experiments I build. Use the project pages and primary repository links to inspect the work or read the public signal archive.
         </p>
         <h3>Public work</h3>
         <ul>
@@ -28,14 +27,6 @@ export default function AgentReadableSummary() {
           {capabilities.map((capability) => (
             <li key={capability.label}>
               <strong>{capability.label}:</strong> {capability.items.join(", ")}
-            </li>
-          ))}
-        </ul>
-        <h3>Developer resources</h3>
-        <ul>
-          {developerResources.map(([name, path, description]) => (
-            <li key={path}>
-              <a href={path}>{name}</a>: {description}
             </li>
           ))}
         </ul>

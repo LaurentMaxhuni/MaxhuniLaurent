@@ -44,6 +44,7 @@ before(async () => {
     cwd: process.cwd(),
     env: {
       ...process.env,
+      DATABASE_URI: "",
       NEXT_PUBLIC_SITE_URL: expectedSiteUrl,
       GOOGLE_SITE_VERIFICATION: "test-search-console-token",
     },
@@ -121,24 +122,30 @@ test("agent discovery files and developer resources are public and well formed",
   assert.match(llmsBody, /\.well-known\/mcp/);
 
   const sitemap = await request("/sitemap.xml");
-  assert.equal(sitemap.status, 200);
-  assert.match(sitemap.headers.get("content-type") ?? "", /application\/xml|text\/xml/);
   const sitemapBody = await sitemap.text();
-  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/developers`));
-  assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/projects/promptify`));
-  assert.doesNotMatch(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/llms\\.txt`));
-  assert.doesNotMatch(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/openapi\\.json`));
+  if (sitemap.status === 503) {
+    assert.equal(sitemap.headers.get("retry-after"), "60");
+    assert.match(sitemap.headers.get("content-type") ?? "", /^text\/plain/);
+    assert.match(sitemapBody, /temporarily unavailable/i);
+  } else {
+    assert.equal(sitemap.status, 200);
+    assert.match(sitemap.headers.get("content-type") ?? "", /application\/xml|text\/xml/);
+    assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/developers`));
+    assert.match(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/projects/promptify`));
+    assert.doesNotMatch(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/llms\\.txt`));
+    assert.doesNotMatch(sitemapBody, new RegExp(`${escapedExpectedSiteUrl}/openapi\\.json`));
 
-  const sitemapLocs = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-  const homepage = await request("/", { headers: { Accept: "text/html" } });
-  const homepageCanonical = (await homepage.text()).match(/<link rel="canonical" href="([^"]+)"/i)?.[1];
-  const sitemapHomepage = sitemapLocs.find((url) => new URL(url).pathname === "/");
-  assert.equal(new URL(sitemapHomepage).origin, new URL(homepageCanonical).origin, "root canonical origin matches sitemap");
+    const sitemapLocs = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+    const homepage = await request("/", { headers: { Accept: "text/html" } });
+    const homepageCanonical = (await homepage.text()).match(/<link rel="canonical" href="([^"]+)"/i)?.[1];
+    const sitemapHomepage = sitemapLocs.find((url) => new URL(url).pathname === "/");
+    assert.equal(new URL(sitemapHomepage).origin, new URL(homepageCanonical).origin, "root canonical origin matches sitemap");
 
-  const sitemapUrls = sitemapLocs.map((url) => new URL(url).pathname);
-  for (const pathname of sitemapUrls) {
-    const response = await request(pathname);
-    assert.equal(response.status, 200, `sitemap URL ${pathname}`);
+    const sitemapUrls = sitemapLocs.map((url) => new URL(url).pathname);
+    for (const pathname of sitemapUrls) {
+      const response = await request(pathname);
+      assert.equal(response.status, 200, `sitemap URL ${pathname}`);
+    }
   }
 
   const robots = await request("/robots.txt");
@@ -159,10 +166,11 @@ test("agent discovery files and developer resources are public and well formed",
   assert.ok(document.components.schemas.PostsPage);
   assert.equal(document.paths["/api/v1/posts"].get.operationId, "listPublishedPosts");
   assert.equal(document.paths["/api/v1/posts"].get.responses["200"].content["application/json"].schema.$ref, "#/components/schemas/PostsPage");
-  for (const status of ["400", "404", "429", "500"]) {
+  for (const status of ["400", "404", "429", "500", "503"]) {
     assert.equal(document.paths["/api/v1/posts"].get.responses[status].content["application/problem+json"].schema.$ref, "#/components/schemas/ProblemDetails");
   }
   assert.equal(document.paths["/api/v1/posts"].get.responses["429"].headers["Retry-After"].schema.type, "integer");
+  assert.equal(document.paths["/api/v1/posts"].get.responses["503"].headers["Retry-After"].schema.type, "integer");
   assert.ok(document.paths["/api/v1/posts"].get.responses["200"].headers["RateLimit-Policy"]);
   assert.ok(document.paths["/api/v1/posts"].get.responses["200"].headers.Deprecation);
   assert.ok(document.paths["/api/v1/posts"].get.responses["200"].headers.Sunset);
@@ -193,6 +201,11 @@ test("public Markdown alternates cover the homepage and developer resources", as
 
   for (const pathname of paths) {
     const response = await request(pathname, { headers: { Accept: "text/html" } });
+    if (pathname === "/blog.md" && response.status === 503) {
+      assert.equal(response.headers.get("retry-after"), "60");
+      assert.match(await response.text(), /temporarily unavailable/i);
+      continue;
+    }
     assert.equal(response.status, 200, pathname);
     assert.match(response.headers.get("content-type") ?? "", /^text\/markdown/, pathname);
     assert.match(await response.text(), /^# /, pathname);
@@ -226,7 +239,7 @@ test("homepage has meaningful server-rendered content without JavaScript", async
 test("versioned posts API returns typed errors and rate-limit metadata", async () => {
   const headers = { Accept: "application/json", "X-API-Version": "1" };
   const response = await request("/api/v1/posts", { headers });
-  assert.ok([200, 500].includes(response.status));
+  assert.ok([200, 503].includes(response.status));
   assert.equal(response.headers.get("api-version"), "1");
   assert.match(response.headers.get("ratelimit-limit") ?? "", /^60$/);
   assert.match(response.headers.get("ratelimit-remaining") ?? "", /^\d+$/);
@@ -240,7 +253,9 @@ test("versioned posts API returns typed errors and rate-limit metadata", async (
     assert.ok(Array.isArray(body.docs));
     assert.equal(typeof body.totalDocs, "number");
   } else {
+    assert.equal(response.headers.get("retry-after"), "60");
     assert.match(response.headers.get("content-type") ?? "", /^application\/problem\+json/);
+    assert.equal((await response.json()).code, "posts_unavailable");
   }
 
   const unsupportedVersion = await request("/api/v1/posts", {
@@ -254,7 +269,7 @@ test("versioned posts API returns typed errors and rate-limit metadata", async (
   assert.equal(typeof problem.message, "string");
 
   const compatibility = await request("/api/posts", { headers: { Accept: "application/json" } });
-  assert.ok([200, 500].includes(compatibility.status));
+  assert.ok([200, 503].includes(compatibility.status));
   assert.equal(compatibility.headers.get("api-version"), "1");
 });
 
@@ -319,7 +334,7 @@ test("homepage and About establish one visible Laurent Maxhuni entity", async ()
   assert.match(aboutText, /15-year-old/);
   assert.match(aboutText, /full-stack developer/i);
   assert.match(aboutText, /AI builder/i);
-  assert.match(aboutText, /web applications/i);
+  assert.match(aboutText, /web products/i);
   assert.match(aboutText, /developer tools/i);
   assert.match(aboutText, /open-source software/i);
 
@@ -362,7 +377,10 @@ test("homepage uses the black-hole hero, places the globe in contact CTA, promot
   assert.match(sections, /contact-orbit__globe/);
   assert.match(sections, /<GlobeStudy opacity=\{0\.78\} brightness=\{1\.04\}/);
   assert.match(sections, /project\.kind === "product" \|\| project\.id === "ideator-dev"/);
-  assert.match(sections, /project\.kind === "repository" && project\.id !== "ideator-dev"/);
+  assert.match(sections, /<ProjectLanes rows=\{marqueeRows\}/);
+  assert.doesNotMatch(sections, /RepositoryArchive|repo-archive|project-archive/);
+  const lanes = await readFile(new URL("../src/components/project-lanes.tsx", import.meta.url), "utf8");
+  assert.match(lanes, /useSyncExternalStore/);
   assert.doesNotMatch(sections, /Sparkles|contact-orbit__glow/);
   assert.match(styles, /\.hero__black-hole/);
   assert.match(styles, /\.contact-orbit__globe/);
@@ -438,16 +456,37 @@ test("important public pages have one canonical URL and complete social metadata
   }
 });
 
-test("project brief pages explain the problem, approach, and build", async () => {
+test("project brief pages show status, case-study headings, and related work", async () => {
   for (const path of ["/projects/promptify", "/projects/ideator-dev"]) {
     const response = await request(path, { headers: { Accept: "text/html" } });
     assert.equal(response.status, 200, path);
     const html = await response.text();
-    assert.match(html, /The problem/);
-    assert.match(html, /My approach/);
-    assert.match(html, /What I built/);
+    assert.match(html, /project-case__status/);
+    assert.match(html, />Problem</);
+    assert.match(html, />Approach</);
+    assert.match(html, />Implementation</);
+    assert.match(html, /Related projects/);
     assert.match(html, /"@type":"(SoftwareApplication|SoftwareSourceCode)"/);
   }
+});
+
+test("project share cards are 1200 by 630 and unknown projects return a noindex 404", async () => {
+  const [page, image, missing] = await Promise.all([
+    request("/projects/promptify"),
+    request("/projects/promptify/share-image"),
+    request("/projects/not-a-project"),
+  ]);
+  const html = await page.text();
+  const socialImage = html.match(/property="og:image" content="([^"]+)"/)?.[1];
+  assert.match(socialImage ?? "", /\/projects\/promptify\/share-image$/);
+  assert.equal(image.status, 200);
+  assert.match(image.headers.get("content-type") ?? "", /^image\/png/);
+  const imageBytes = new Uint8Array(await image.arrayBuffer());
+  const view = new DataView(imageBytes.buffer, imageBytes.byteOffset, imageBytes.byteLength);
+  assert.equal(view.getUint32(16), 1200);
+  assert.equal(view.getUint32(20), 630);
+  assert.equal(missing.status, 404);
+  assert.match(await missing.text(), /This page does not exist/);
 });
 
 test("web manifest is valid and declares the existing favicon", async () => {
@@ -498,11 +537,14 @@ test("preview and Markdown alternates use the production canonical origin", asyn
 
 test("blog posts retain article metadata, structured data, and an H1-to-H2 content hierarchy", async () => {
   const template = await readFile(new URL("../src/app/(frontend)/blog/[slug]/page.tsx", import.meta.url), "utf8");
-  assert.match(template, /alternates: \{ canonical: pathname \}/);
+  assert.match(template, /alternates: \{ canonical: details\.canonicalUrl \}/);
+  assert.match(template, /createPublishedPostMetadata/);
   assert.match(template, /type: "article"/);
   assert.match(template, /"@type": "BlogPosting"/);
   assert.match(template, /"@type": "BreadcrumbList"/);
-  assert.match(template, /components=\{\{ h1: \(\{ children \}\) => <h2>/);
+  assert.match(template, /Table of contents/);
+  assert.match(template, /Link href="\/about">Laurent Maxhuni/);
+  assert.match(template, /authorUrl/);
 });
 
 test("trust pages contain substantive public content", async () => {

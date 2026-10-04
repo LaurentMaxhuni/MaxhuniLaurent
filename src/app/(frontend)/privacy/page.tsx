@@ -17,7 +17,6 @@ export default function PrivacyPage() {
       lead="How this site handles the information needed to deliver its public pages."
       related={[
         { href: "/contact", label: "Contact guidance" },
-        { href: "/developers", label: "Developer resources" },
       ]}
     >
       {privacyCopy.split("\n\n").map((paragraph) => <p key={paragraph}>{paragraph}</p>)}

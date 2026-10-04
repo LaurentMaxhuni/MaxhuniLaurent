@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import FrontendNotFound from "./(frontend)/not-found";
 import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -10,6 +10,4 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function MissingPage() {
-  notFound();
-}
+export default FrontendNotFound;
