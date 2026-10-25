@@ -31,7 +31,7 @@ Payload’s development database push is enabled outside production. Use a dispo
 
 ## Blog workflow
 
-Posts can be managed in Payload at `/admin`; authors can save Markdown drafts, review their sources, and publish them when ready. Three existing articles are also checked into `src/content/posts.ts` so the archive remains available when Payload is empty or offline. A published Payload article with the same slug replaces its built-in copy.
+Posts can be managed in Payload at `/admin`; authors can save Markdown drafts, review their sources, and publish them when ready. Published articles are also checked into `src/content/posts.ts` and `src/content/october-posts.ts` so the archive remains available when Payload is empty or offline. A published Payload article with the same slug replaces its built-in copy.
 
 To stage the starter notes as drafts, point `DATABASE_URI` at a disposable database or Neon branch, apply the current migrations, then run:
 

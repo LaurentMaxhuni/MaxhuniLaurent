@@ -1,4 +1,5 @@
 import type { Media, Post } from "../../payload-types";
+import { octoberPosts } from "./october-posts";
 
 const timestamp = "2026-09-09T12:00:00.000Z";
 const rewriteTimestamp = "2026-09-12T12:00:00.000Z";
@@ -18,6 +19,7 @@ function editorialCover(id: number, url: string, alt: string): Media {
 
 /** Existing public articles stay available when Payload is empty or unavailable. */
 export const builtInPosts: Post[] = [
+  ...octoberPosts,
   {
     id: -1001,
     title: "GPT-6 vs Fable 5.1",
